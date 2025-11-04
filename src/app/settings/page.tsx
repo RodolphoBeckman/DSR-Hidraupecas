@@ -38,24 +38,24 @@ export default function SettingsPage() {
   const handleSave = () => {
     setSettings({ pixQrCode: qrCodePreview });
     toast({
-      title: 'Settings Saved',
-      description: 'Your PIX QR Code has been updated successfully.',
+      title: 'Configurações Salvas',
+      description: 'Sua imagem de QR Code do PIX foi atualizada com sucesso.',
     });
   };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Settings" />
+      <PageHeader title="Configurações" />
       <Card>
         <CardHeader>
-          <CardTitle>PIX Payment</CardTitle>
+          <CardTitle>Pagamento PIX</CardTitle>
           <CardDescription>
-            Upload your PIX QR Code image here. It will be displayed on the generated PDF budgets.
+            Faça o upload da imagem do seu QR Code PIX aqui. Ele será exibido nos orçamentos em PDF gerados.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row items-center gap-8">
           <div className="flex-1 w-full space-y-2">
-            <Label htmlFor="qr-code-upload">QR Code Image</Label>
+            <Label htmlFor="qr-code-upload">Imagem do QR Code</Label>
             <div className="flex items-center gap-2">
               <Input id="qr-code-upload" type="file" accept="image/*" onChange={handleFileChange} className="flex-1" />
               <Button size="icon" className="md:hidden" asChild>
@@ -63,15 +63,15 @@ export default function SettingsPage() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Upload a square image for best results.
+              Carregue uma imagem quadrada para melhores resultados.
             </p>
           </div>
           <div className="flex-shrink-0">
-            <p className="text-sm font-medium mb-2 text-center">Image Preview</p>
+            <p className="text-sm font-medium mb-2 text-center">Pré-visualização</p>
             <div className="w-40 h-40 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted overflow-hidden">
               <Image
                 src={qrCodePreview || qrPlaceholder.imageUrl}
-                alt="PIX QR Code Preview"
+                alt="Pré-visualização do QR Code PIX"
                 width={160}
                 height={160}
                 className="object-contain"
@@ -82,7 +82,7 @@ export default function SettingsPage() {
         </CardContent>
         <CardFooter className="border-t px-6 py-4">
           <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" /> Save Settings
+            <Save className="mr-2 h-4 w-4" /> Salvar Configurações
           </Button>
         </CardFooter>
       </Card>

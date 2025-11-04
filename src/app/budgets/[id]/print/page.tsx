@@ -27,7 +27,6 @@ export default function PrintBudgetPage() {
 
   useEffect(() => {
     if (budget) {
-      // Delay printing slightly to ensure all content and images are rendered
       setTimeout(() => {
         window.print();
       }, 500);
@@ -47,8 +46,8 @@ export default function PrintBudgetPage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Budget Not Found</h1>
-          <p className="text-muted-foreground">The requested budget could not be found.</p>
+          <h1 className="text-2xl font-bold">Orçamento Não Encontrado</h1>
+          <p className="text-muted-foreground">O orçamento solicitado não pôde ser encontrado.</p>
         </div>
       </div>
     );

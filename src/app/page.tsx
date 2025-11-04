@@ -33,14 +33,18 @@ export default function BudgetCreationPage() {
   const [newItemValue, setNewItemValue] = useState('');
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.value, 0), [items]);
+  
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
 
   const handleAddItem = () => {
-    const value = parseFloat(newItemValue);
+    const value = parseFloat(newItemValue.replace('.', '').replace(',', '.'));
     if (!newItemDesc || isNaN(value) || value <= 0) {
       toast({
         variant: 'destructive',
-        title: 'Invalid Item',
-        description: 'Please provide a valid description and positive value for the service.',
+        title: 'Item Inválido',
+        description: 'Por favor, forneça uma descrição válida e um valor positivo para o serviço.',
       });
       return;
     }
@@ -60,8 +64,8 @@ export default function BudgetCreationPage() {
     if (!client || !salesperson || items.length === 0) {
       toast({
         variant: 'destructive',
-        title: 'Incomplete Information',
-        description: 'Please select a client, a salesperson, and add at least one service item.',
+        title: 'Informações Incompletas',
+        description: 'Por favor, selecione um cliente, um vendedor e adicione pelo menos um item de serviço.',
       });
       return;
     }
@@ -69,7 +73,7 @@ export default function BudgetCreationPage() {
     const paymentPlan = paymentPlans.find(p => p.id === selectedPaymentPlanId);
 
     const newBudget: Budget = {
-      id: `BUD-${new Date().getTime()}`,
+      id: `ORC-${new Date().getTime()}`,
       client,
       salesperson,
       items,
@@ -80,12 +84,10 @@ export default function BudgetCreationPage() {
 
     setBudgets([...budgets, newBudget]);
     toast({
-      title: 'Budget Created',
-      description: `Budget ${newBudget.id} has been saved successfully.`,
+      title: 'Orçamento Criado',
+      description: `O orçamento ${newBudget.id} foi salvo com sucesso.`,
     });
     
-    // For this demonstration, we'll use the "Generate PDF" button to navigate to a print view.
-    // In a real app, you might clear the form here.
     return newBudget.id;
   };
 
@@ -103,32 +105,32 @@ export default function BudgetCreationPage() {
       const budget = budgets.find(b => b.id === budgetId) ?? {id: budgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId)};
 
       if (budget?.salesperson?.whatsapp) {
-          const message = encodeURIComponent(`Hello ${budget.client?.name}, here is your budget #${budget.id} with a total of $${budget.total.toFixed(2)}. Please let me know if you have any questions.`);
+          const message = encodeURIComponent(`Olá ${budget.client?.name}, aqui está seu orçamento #${budget.id} com um total de ${formatCurrency(budget.total)}. Por favor me avise se tiver alguma dúvida.`);
           window.open(`https://wa.me/${budget.salesperson.whatsapp.replace(/\D/g, '')}?text=${message}`, '_blank');
       } else {
           toast({
               variant: 'destructive',
-              title: 'WhatsApp number not found',
-              description: "The selected salesperson doesn't have a WhatsApp number registered.",
+              title: 'Número do WhatsApp não encontrado',
+              description: "O vendedor selecionado não possui um número de WhatsApp cadastrado.",
           });
       }
   };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Create New Budget" />
+      <PageHeader title="Criar Novo Orçamento" />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Parties Involved</CardTitle>
-            <CardDescription>Select the client and salesperson for this budget.</CardDescription>
+            <CardTitle>Envolvidos</CardTitle>
+            <CardDescription>Selecione o cliente e o vendedor para este orçamento.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="client">Client</Label>
+              <Label htmlFor="client">Cliente</Label>
               <Select onValueChange={setSelectedClientId} value={selectedClientId}>
                 <SelectTrigger id="client">
-                  <SelectValue placeholder="Select a client" />
+                  <SelectValue placeholder="Selecione um cliente" />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map(client => (
@@ -138,10 +140,10 @@ export default function BudgetCreationPage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salesperson">Salesperson</Label>
+              <Label htmlFor="salesperson">Vendedor</Label>
               <Select onValueChange={setSelectedSalespersonId} value={selectedSalespersonId}>
                 <SelectTrigger id="salesperson">
-                  <SelectValue placeholder="Select a salesperson" />
+                  <SelectValue placeholder="Selecione um vendedor" />
                 </SelectTrigger>
                 <SelectContent>
                   {salespeople.map(sp => (
@@ -155,34 +157,34 @@ export default function BudgetCreationPage() {
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Service Items</CardTitle>
-             <CardDescription>Add the services included in this budget.</CardDescription>
+            <CardTitle>Itens do Serviço</CardTitle>
+             <CardDescription>Adicione os serviços incluídos neste orçamento.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-[1fr_150px_auto] gap-2 items-end">
                 <div className="space-y-1">
-                  <Label htmlFor="item-desc">Description</Label>
-                  <Input id="item-desc" value={newItemDesc} onChange={e => setNewItemDesc(e.target.value)} placeholder="e.g., Website Development" />
+                  <Label htmlFor="item-desc">Descrição</Label>
+                  <Input id="item-desc" value={newItemDesc} onChange={e => setNewItemDesc(e.target.value)} placeholder="Ex: Desenvolvimento de Site" />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="item-value">Value ($)</Label>
-                  <Input id="item-value" type="number" value={newItemValue} onChange={e => setNewItemValue(e.target.value)} placeholder="e.g., 1500.00" />
+                  <Label htmlFor="item-value">Valor (R$)</Label>
+                  <Input id="item-value" type="text" value={newItemValue} onChange={e => setNewItemValue(e.target.value)} placeholder="Ex: 1500,00" />
                 </div>
                 <Button onClick={handleAddItem} className="w-full md:w-auto">
-                  <PlusCircle className="mr-2" /> Add Item
+                  <PlusCircle className="mr-2" /> Adicionar Item
                 </Button>
               </div>
               <Separator />
               <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
                 {items.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">No items added yet.</p>
+                  <p className="text-sm text-muted-foreground text-center py-4">Nenhum item adicionado ainda.</p>
                 ) : (
                   items.map((item, index) => (
                     <div key={item.id} className="flex items-center justify-between p-2 rounded-md bg-secondary">
                       <span className="font-medium">{item.description}</span>
                       <div className="flex items-center gap-4">
-                        <span className="text-muted-foreground">${item.value.toFixed(2)}</span>
+                        <span className="text-muted-foreground">{formatCurrency(item.value)}</span>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveItem(item.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -196,22 +198,22 @@ export default function BudgetCreationPage() {
            <CardFooter className="flex-col items-stretch gap-4 border-t pt-6">
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatCurrency(total)}</span>
               </div>
           </CardFooter>
         </Card>
 
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Finalization</CardTitle>
-            <CardDescription>Select a payment plan and finalize the budget.</CardDescription>
+            <CardTitle>Finalização</CardTitle>
+            <CardDescription>Selecione um plano de pagamento e finalize o orçamento.</CardDescription>
           </CardHeader>
           <CardContent>
               <div className="space-y-2">
-                <Label htmlFor="payment-plan">Payment Plan</Label>
+                <Label htmlFor="payment-plan">Plano de Pagamento</Label>
                 <Select onValueChange={setSelectedPaymentPlanId} value={selectedPaymentPlanId}>
                     <SelectTrigger id="payment-plan">
-                    <SelectValue placeholder="Select a payment plan (optional)" />
+                    <SelectValue placeholder="Selecione um plano de pagamento (opcional)" />
                     </SelectTrigger>
                     <SelectContent>
                     {paymentPlans.map(plan => (
@@ -223,10 +225,10 @@ export default function BudgetCreationPage() {
           </CardContent>
           <CardFooter className="gap-2 border-t pt-6">
             <Button onClick={handleGeneratePdf} className="flex-1">
-                <FileText /> Save & Generate PDF
+                <FileText /> Salvar e Gerar PDF
             </Button>
             <Button onClick={handleShareOnWhatsApp} variant="secondary" className="flex-1">
-                <Share2/> Share on WhatsApp
+                <Share2/> Compartilhar no WhatsApp
             </Button>
           </CardFooter>
         </Card>

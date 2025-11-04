@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export const Logo = () => (
-  <div className="flex items-center gap-2 p-2" aria-label="BudgetEase Logo">
+  <div className="flex items-center gap-2 p-2" aria-label="OrçaFácil Logo">
      <svg
       width="24"
       height="24"
@@ -47,7 +47,7 @@ export const Logo = () => (
       />
     </svg>
     <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
-      BudgetEase
+      OrçaFácil
     </span>
   </div>
 );

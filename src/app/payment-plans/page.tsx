@@ -40,19 +40,19 @@ export default function PaymentPlansPage() {
     if (!currentPlan.name) {
       toast({
         variant: 'destructive',
-        title: 'Validation Error',
-        description: 'Plan name is required.',
+        title: 'Erro de Validação',
+        description: 'O nome do plano é obrigatório.',
       });
       return;
     }
     
     if (currentPlan.id) {
       setPaymentPlans(paymentPlans.map(p => p.id === currentPlan.id ? currentPlan : p));
-      toast({ title: 'Plan Updated', description: `Plan ${currentPlan.name} has been updated.` });
+      toast({ title: 'Plano Atualizado', description: `O plano ${currentPlan.name} foi atualizado.` });
     } else {
       const newPlan = { ...currentPlan, id: uuidv4() };
       setPaymentPlans([...paymentPlans, newPlan]);
-      toast({ title: 'Plan Added', description: `Plan ${newPlan.name} has been added.` });
+      toast({ title: 'Plano Adicionado', description: `O plano ${newPlan.name} foi adicionado.` });
     }
     
     setIsDialogOpen(false);
@@ -61,21 +61,21 @@ export default function PaymentPlansPage() {
 
   const handleDelete = (id: string) => {
     setPaymentPlans(paymentPlans.filter(p => p.id !== id));
-    toast({ title: 'Plan Deleted', description: 'The payment plan has been deleted.' });
+    toast({ title: 'Plano Excluído', description: 'O plano de pagamento foi excluído.' });
   };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Payment Plans">
+      <PageHeader title="Planos de Pagamento">
         <Button onClick={() => handleOpenDialog()}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Plan
+          <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Novo Plano
         </Button>
       </PageHeader>
       
       <Card>
         <CardHeader>
-          <CardTitle>Plan List</CardTitle>
-          <CardDescription>Configure and manage different payment plans to offer clients.</CardDescription>
+          <CardTitle>Lista de Planos</CardTitle>
+          <CardDescription>Configure e gerencie diferentes planos de pagamento para oferecer aos clientes.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -97,7 +97,7 @@ export default function PaymentPlansPage() {
                 </div>
               ))
             ) : (
-              <p className="text-center text-muted-foreground py-8">No payment plans found. Add one to get started.</p>
+              <p className="text-center text-muted-foreground py-8">Nenhum plano de pagamento encontrado. Adicione um para começar.</p>
             )}
           </div>
         </CardContent>
@@ -106,26 +106,26 @@ export default function PaymentPlansPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{currentPlan.id ? 'Edit Plan' : 'Add New Plan'}</DialogTitle>
+            <DialogTitle>{currentPlan.id ? 'Editar Plano' : 'Adicionar Novo Plano'}</DialogTitle>
             <DialogDescription>
-                {currentPlan.id ? 'Update the details for this payment plan.' : 'Fill in the details for the new payment plan.'}
+                {currentPlan.id ? 'Atualize os detalhes deste plano de pagamento.' : 'Preencha os detalhes para o novo plano de pagamento.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Name</Label>
+              <Label htmlFor="name" className="text-right">Nome</Label>
               <Input id="name" value={currentPlan.name} onChange={e => setCurrentPlan({...currentPlan, name: e.target.value})} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="description" className="text-right pt-2">Description</Label>
+              <Label htmlFor="description" className="text-right pt-2">Descrição</Label>
               <Textarea id="description" value={currentPlan.description} onChange={e => setCurrentPlan({...currentPlan, description: e.target.value})} className="col-span-3" />
             </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Cancelar</Button>
             </DialogClose>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
+            <Button onClick={handleSaveChanges}>Salvar Alterações</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

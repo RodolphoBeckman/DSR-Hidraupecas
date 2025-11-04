@@ -39,19 +39,19 @@ export default function SalespeoplePage() {
     if (!currentSalesperson.name || !currentSalesperson.whatsapp) {
       toast({
         variant: 'destructive',
-        title: 'Validation Error',
-        description: 'Name and WhatsApp number are required.',
+        title: 'Erro de Validação',
+        description: 'Nome e número do WhatsApp são obrigatórios.',
       });
       return;
     }
     
     if (currentSalesperson.id) {
       setSalespeople(salespeople.map(s => s.id === currentSalesperson.id ? currentSalesperson : s));
-      toast({ title: 'Salesperson Updated', description: `Details for ${currentSalesperson.name} have been updated.` });
+      toast({ title: 'Vendedor Atualizado', description: `Os detalhes de ${currentSalesperson.name} foram atualizados.` });
     } else {
       const newSalesperson = { ...currentSalesperson, id: uuidv4() };
       setSalespeople([...salespeople, newSalesperson]);
-      toast({ title: 'Salesperson Added', description: `${newSalesperson.name} has been added.` });
+      toast({ title: 'Vendedor Adicionado', description: `${newSalesperson.name} foi adicionado.` });
     }
     
     setIsDialogOpen(false);
@@ -60,21 +60,21 @@ export default function SalespeoplePage() {
 
   const handleDelete = (id: string) => {
     setSalespeople(salespeople.filter(s => s.id !== id));
-    toast({ title: 'Salesperson Deleted', description: 'The salesperson has been deleted.' });
+    toast({ title: 'Vendedor Excluído', description: 'O vendedor foi excluído.' });
   };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Salespeople">
+      <PageHeader title="Vendedores">
         <Button onClick={() => handleOpenDialog()}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Salesperson
+          <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Novo Vendedor
         </Button>
       </PageHeader>
       
       <Card>
         <CardHeader>
-          <CardTitle>Salesperson List</CardTitle>
-          <CardDescription>Manage your registered salespeople.</CardDescription>
+          <CardTitle>Lista de Vendedores</CardTitle>
+          <CardDescription>Gerencie seus vendedores cadastrados.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -96,7 +96,7 @@ export default function SalespeoplePage() {
                 </div>
               ))
             ) : (
-              <p className="text-center text-muted-foreground py-8">No salespeople found. Add one to get started.</p>
+              <p className="text-center text-muted-foreground py-8">Nenhum vendedor encontrado. Adicione um para começar.</p>
             )}
           </div>
         </CardContent>
@@ -105,26 +105,26 @@ export default function SalespeoplePage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{currentSalesperson.id ? 'Edit Salesperson' : 'Add New Salesperson'}</DialogTitle>
+            <DialogTitle>{currentSalesperson.id ? 'Editar Vendedor' : 'Adicionar Novo Vendedor'}</DialogTitle>
             <DialogDescription>
-                {currentSalesperson.id ? 'Update the details for this salesperson.' : 'Fill in the details for the new salesperson.'}
+                {currentSalesperson.id ? 'Atualize os detalhes deste vendedor.' : 'Preencha os detalhes do novo vendedor.'}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Name</Label>
+              <Label htmlFor="name" className="text-right">Nome</Label>
               <Input id="name" value={currentSalesperson.name} onChange={e => setCurrentSalesperson({...currentSalesperson, name: e.target.value})} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="whatsapp" className="text-right">WhatsApp</Label>
-              <Input id="whatsapp" placeholder="+1234567890" value={currentSalesperson.whatsapp} onChange={e => setCurrentSalesperson({...currentSalesperson, whatsapp: e.target.value})} className="col-span-3" />
+              <Input id="whatsapp" placeholder="+5511999999999" value={currentSalesperson.whatsapp} onChange={e => setCurrentSalesperson({...currentSalesperson, whatsapp: e.target.value})} className="col-span-3" />
             </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Cancelar</Button>
             </DialogClose>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
+            <Button onClick={handleSaveChanges}>Salvar Alterações</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

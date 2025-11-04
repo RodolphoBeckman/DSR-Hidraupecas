@@ -4,8 +4,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { AppLayout } from '@/components/app-layout';
 
 export const metadata: Metadata = {
-  title: 'BudgetEase',
-  description: 'Simplify your service quoting process.',
+  title: 'OrçaFácil',
+  description: 'Simplifique seu processo de cotação de serviços.',
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

@@ -12,6 +12,10 @@ interface BudgetPrintViewProps {
 export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
   const qrPlaceholder = PlaceHolderImages.find(p => p.id === 'pix-qr-code')!;
 
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
   return (
     <div className="bg-white text-black font-sans p-10 print:p-0">
       <style jsx global>{`
@@ -24,21 +28,21 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
         <div>
           <Logo />
           <div className="mt-4 text-sm text-neutral-600">
-            <p>Your Company Name</p>
-            <p>123 Business Rd, Suite 100</p>
-            <p>City, State, 12345</p>
-            <p>contact@yourcompany.com</p>
+            <p>Sua Empresa</p>
+            <p>Rua Exemplo, 123, Sala 100</p>
+            <p>Cidade, Estado, 12345-678</p>
+            <p>contato@suaempresa.com</p>
           </div>
         </div>
         <div className="text-right">
-          <h1 className="text-4xl font-bold text-neutral-800">BUDGET</h1>
+          <h1 className="text-4xl font-bold text-neutral-800">ORÇAMENTO</h1>
           <p className="text-neutral-600 mt-2"># {budget.id}</p>
-          <p className="text-neutral-600">Date: {new Date(budget.createdAt).toLocaleDateString()}</p>
+          <p className="text-neutral-600">Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
         </div>
       </header>
       
       <section className="mb-8">
-        <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-3">Billed To</h2>
+        <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-3">Cobrança para</h2>
         <div className="text-neutral-800">
           <p className="font-bold">{budget.client.name}</p>
           <p>{budget.client.email}</p>
@@ -50,15 +54,15 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
         <table className="w-full text-left">
           <thead>
             <tr className="bg-neutral-100">
-              <th className="p-3 font-semibold text-neutral-700">Service Description</th>
-              <th className="p-3 font-semibold text-neutral-700 text-right">Value</th>
+              <th className="p-3 font-semibold text-neutral-700">Descrição do Serviço</th>
+              <th className="p-3 font-semibold text-neutral-700 text-right">Valor</th>
             </tr>
           </thead>
           <tbody>
             {budget.items.map(item => (
               <tr key={item.id} className="border-b border-neutral-100">
                 <td className="p-3">{item.description}</td>
-                <td className="p-3 text-right">${item.value.toFixed(2)}</td>
+                <td className="p-3 text-right">{formatCurrency(item.value)}</td>
               </tr>
             ))}
           </tbody>
@@ -69,11 +73,11 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
         <div className="w-full md:w-1/3">
             <div className="flex justify-between py-2 border-b">
                 <span className="font-medium text-neutral-600">Subtotal</span>
-                <span className="text-neutral-800">${budget.total.toFixed(2)}</span>
+                <span className="text-neutral-800">{formatCurrency(budget.total)}</span>
             </div>
             <div className="flex justify-between py-3 bg-primary text-primary-foreground font-bold text-xl p-3 rounded-md">
                 <span>Total</span>
-                <span>${budget.total.toFixed(2)}</span>
+                <span>{formatCurrency(budget.total)}</span>
             </div>
         </div>
       </section>
@@ -83,21 +87,21 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
             <div className="text-sm text-neutral-600 max-w-md">
                 {budget.paymentPlan && (
                     <>
-                        <h3 className="font-bold text-neutral-800 mb-2">Payment Plan: {budget.paymentPlan.name}</h3>
+                        <h3 className="font-bold text-neutral-800 mb-2">Plano de Pagamento: {budget.paymentPlan.name}</h3>
                         <p className="mb-4">{budget.paymentPlan.description}</p>
                     </>
                 )}
-                <h3 className="font-bold text-neutral-800 mb-2">Payment Instructions</h3>
-                <p>Please make the payment via PIX using the QR code.</p>
-                <p className="mt-4">Thank you for your business!</p>
-                <p className="font-semibold mt-2">Salesperson: {budget.salesperson.name}</p>
+                <h3 className="font-bold text-neutral-800 mb-2">Instruções de Pagamento</h3>
+                <p>Por favor, realize o pagamento via PIX utilizando o QR code.</p>
+                <p className="mt-4">Obrigado pela sua preferência!</p>
+                <p className="font-semibold mt-2">Vendedor: {budget.salesperson.name}</p>
             </div>
             {settings.pixQrCode && (
                 <div className="text-center">
-                    <p className="font-semibold mb-2">Scan to Pay with PIX</p>
+                    <p className="font-semibold mb-2">Escanear para Pagar com PIX</p>
                     <Image
                         src={settings.pixQrCode || qrPlaceholder.imageUrl}
-                        alt="PIX QR Code"
+                        alt="QR Code do PIX"
                         width={128}
                         height={128}
                         className="object-contain"
@@ -108,8 +112,8 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
         </div>
       </footer>
        <div className="no-print mt-8 text-center text-muted-foreground text-sm">
-        <p>You can now print this page or save it as a PDF.</p>
-        <p>This message will not appear on the printed document.</p>
+        <p>Você pode imprimir esta página ou salvá-la como PDF.</p>
+        <p>Esta mensagem não aparecerá no documento impresso.</p>
       </div>
     </div>
   );

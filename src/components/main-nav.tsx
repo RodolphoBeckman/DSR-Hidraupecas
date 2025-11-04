@@ -20,27 +20,27 @@ import { cn } from '@/lib/utils';
 const menuItems = [
   {
     href: '/',
-    label: 'New Budget',
+    label: 'Novo Orçamento',
     icon: FilePlus2,
   },
   {
     href: '/clients',
-    label: 'Clients',
+    label: 'Clientes',
     icon: Users,
   },
   {
     href: '/salespeople',
-    label: 'Salespeople',
+    label: 'Vendedores',
     icon: Briefcase,
   },
   {
     href: '/payment-plans',
-    label: 'Payment Plans',
+    label: 'Planos de Pag.',
     icon: CreditCard,
   },
   {
     href: '/settings',
-    label: 'Settings',
+    label: 'Configurações',
     icon: Settings,
   },
 ];
