@@ -56,11 +56,17 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
     <div className="bg-gray-100 min-h-screen">
       <style jsx global>{`
         @media print {
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .no-print { display: none; }
+          body { 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+          }
+          .no-print { 
+            display: none !important; 
+          }
            .print-area {
             padding: 0 !important;
             margin: 0 !important;
+            box-shadow: none !important;
           }
           .print-container {
             padding: 0 !important;
@@ -68,7 +74,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
           }
         }
         @page {
-          size: auto;
+          size: a4;
           margin: 0;
         }
       `}</style>
@@ -96,7 +102,8 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 <Image
                     src={settings.headerImage || headerPlaceholder.imageUrl}
                     alt="Cabeçalho do Orçamento"
-                    fill
+                    layout="fill"
+                    objectFit="cover"
                     className="object-cover"
                     data-ai-hint={headerPlaceholder.imageHint}
                 />
