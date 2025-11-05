@@ -18,6 +18,7 @@ import { Button } from './ui/button';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Componente que usa o hook e precisa estar dentro do Provider
 function CustomSidebarTrigger() {
     const { toggleSidebar, state } = useSidebar();
     return (
@@ -27,6 +28,7 @@ function CustomSidebarTrigger() {
     )
 }
 
+// O conteúdo do layout que depende do contexto do Sidebar
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { state } = useSidebar();
 
@@ -45,7 +47,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+          {/* O SidebarTrigger padrão para mobile */}
           <SidebarTrigger className="sm:hidden" />
+          {/* O gatilho customizado para desktop */}
           <div className='hidden sm:block'>
             <CustomSidebarTrigger />
           </div>
@@ -59,7 +63,10 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   );
 }
 
+// O componente principal que exportamos
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  // A função AppLayout agora APENAS renderiza o provider
+  // e passa o 'children' para o LayoutContent, que está DENTRO do provider.
   return (
     <SidebarProvider>
       <LayoutContent>{children}</LayoutContent>
