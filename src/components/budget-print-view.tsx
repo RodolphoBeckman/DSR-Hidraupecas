@@ -93,19 +93,6 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
             <div className="bg-white text-black font-sans print-area">
             
             <div className="relative h-48 w-full text-white">
-                 <div className="absolute inset-0 bg-black/60 flex items-center justify-between p-10 z-10">
-                    <div className="flex flex-col">
-                        <Logo />
-                        {companyInfo && (
-                            <div className="mt-4 text-sm">
-                                <p>{companyInfo.name || 'Sua Empresa'}</p>
-                                <p>{companyInfo.address || 'Rua Exemplo, 123, Sala 100'}</p>
-                                <p>{companyInfo.cityStateZip || 'Cidade, Estado, 12345-678'}</p>
-                                <p>{companyInfo.email || 'contato@suaempresa.com'}</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
                 <Image
                     src={settings.headerImage || headerPlaceholder.imageUrl}
                     alt="Cabeçalho do Orçamento"
@@ -113,11 +100,24 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     className="object-cover"
                     data-ai-hint={headerPlaceholder.imageHint}
                 />
-                 <div className="absolute inset-0 bg-black/60 flex items-end justify-end p-10">
-                    <div>
-                        <h1 className="text-4xl font-bold text-white mb-2 text-right">ORÇAMENTO</h1>
-                        <p className="font-semibold text-lg text-right"># {budget.id}</p>
-                        <p className="text-right">Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
+                 <div className="absolute inset-0 bg-black/60 flex flex-col justify-between p-10 z-10">
+                    <div className="flex justify-between items-start">
+                        <div className="flex flex-col">
+                            <Logo />
+                            {companyInfo && (
+                                <div className="mt-4 text-sm">
+                                    <p>{companyInfo.name || 'Sua Empresa'}</p>
+                                    <p>{companyInfo.address || 'Rua Exemplo, 123, Sala 100'}</p>
+                                    <p>{companyInfo.cityStateZip || 'Cidade, Estado, 12345-678'}</p>
+                                    <p>{companyInfo.email || 'contato@suaempresa.com'}</p>
+                                </div>
+                            )}
+                        </div>
+                         <div>
+                            <h1 className="text-4xl font-bold text-white mb-2 text-right">ORÇAMENTO</h1>
+                            <p className="font-semibold text-lg text-right"># {budget.id}</p>
+                            <p className="text-right">Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
+                        </div>
                     </div>
                 </div>
             </div>
