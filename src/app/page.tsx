@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { PlusCircle, Trash2, FileText, Share2 } from 'lucide-react';
+import { PlusCircle, Trash2, FileText, Share2, TicketPercent } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
@@ -37,6 +37,7 @@ export default function BudgetCreationPage() {
   const [items, setItems] = useState<ServiceItem[]>([]);
   const [newItemDesc, setNewItemDesc] = useState('');
   const [newItemValue, setNewItemValue] = useState('');
+  const [discount, setDiscount] = useState<number>(0);
 
   useEffect(() => {
     if (budgetId && budgets.length > 0) {
@@ -51,11 +52,15 @@ export default function BudgetCreationPage() {
         if(budgetToEdit.installmentsCount) {
             setInstallmentsCount(budgetToEdit.installmentsCount);
         }
+        if(budgetToEdit.discount) {
+            setDiscount(budgetToEdit.discount);
+        }
       }
     }
   }, [budgetId, budgets]);
 
-  const total = useMemo(() => items.reduce((sum, item) => sum + item.value, 0), [items]);
+  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.value, 0), [items]);
+  const total = useMemo(() => subtotal - discount, [subtotal, discount]);
   
   const selectedPaymentPlan = useMemo(() => {
     return paymentPlans.find(p => p.id === selectedPaymentPlanId);
@@ -71,8 +76,10 @@ export default function BudgetCreationPage() {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
   
-  const formatInputValue = (value: number) => {
-    return value.toFixed(2).replace('.', ',');
+  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const parsedValue = parseFloat(value.replace('.', '').replace(',', '.'));
+    setDiscount(isNaN(parsedValue) ? 0 : parsedValue);
   }
 
 
@@ -114,6 +121,7 @@ export default function BudgetCreationPage() {
         items,
         paymentPlan: selectedPaymentPlan,
         installmentsCount: selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 ? installmentsCount : undefined,
+        discount: discount > 0 ? discount : undefined,
         total,
     };
     
@@ -251,6 +259,23 @@ export default function BudgetCreationPage() {
             </div>
           </CardContent>
            <CardFooter className="flex-col items-stretch gap-4 border-t pt-6">
+               <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
+                <span>Subtotal</span>
+                <span>{formatCurrency(subtotal)}</span>
+              </div>
+              <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
+                <Label htmlFor='discount' className="flex items-center gap-2 cursor-pointer">
+                    <TicketPercent className="h-5 w-5" /> Desconto (R$)
+                </Label>
+                <Input 
+                    id="discount" 
+                    type="text" 
+                    value={discount > 0 ? discount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''} 
+                    onChange={handleDiscountChange}
+                    className="max-w-[120px] text-right" 
+                    placeholder="0,00"
+                />
+              </div>
               <div className="flex justify-between items-center text-lg font-semibold">
                 <span>Total</span>
                 <span>{formatCurrency(total)}</span>

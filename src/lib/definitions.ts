@@ -31,6 +31,7 @@ export type Budget = {
   items: ServiceItem[];
   paymentPlan?: PaymentPlan;
   installmentsCount?: number;
+  discount?: number;
   total: number;
   createdAt: string;
 };

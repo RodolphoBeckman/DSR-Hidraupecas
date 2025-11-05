@@ -50,6 +50,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
   };
   
   const companyInfo = settings.companyInfo;
+  const subtotal = budget.items.reduce((acc, item) => acc + item.value, 0);
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -92,14 +93,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
             <div className="bg-white text-black font-sans print-area">
             
             <div className="relative h-48 w-full text-white">
-                <Image
-                    src={settings.headerImage || headerPlaceholder.imageUrl}
-                    alt="Cabeçalho do Orçamento"
-                    fill
-                    className="object-cover"
-                    data-ai-hint={headerPlaceholder.imageHint}
-                />
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-between p-10">
+                 <div className="absolute inset-0 bg-black/60 flex items-center justify-between p-10 z-10">
                     <div className="flex flex-col">
                         <Logo />
                         {companyInfo && (
@@ -111,8 +105,17 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                             </div>
                         )}
                     </div>
+                </div>
+                <Image
+                    src={settings.headerImage || headerPlaceholder.imageUrl}
+                    alt="Cabeçalho do Orçamento"
+                    fill
+                    className="object-cover"
+                    data-ai-hint={headerPlaceholder.imageHint}
+                />
+                 <div className="absolute inset-0 bg-black/60 flex items-end justify-end p-10">
                     <div>
-                        <h1 className="text-4xl font-bold text-white mb-2">ORÇAMENTO</h1>
+                        <h1 className="text-4xl font-bold text-white mb-2 text-right">ORÇAMENTO</h1>
                         <p className="font-semibold text-lg text-right"># {budget.id}</p>
                         <p className="text-right">Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
                     </div>
@@ -151,11 +154,17 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 </section>
                 
                 <section className="flex justify-end mb-8">
-                    <div className="w-full md:w-1/3">
+                    <div className="w-full md:w-1/3 space-y-2">
                         <div className="flex justify-between py-2 border-b">
                             <span className="font-medium text-neutral-600">Subtotal</span>
-                            <span className="text-neutral-800">{formatCurrency(budget.total)}</span>
+                            <span className="text-neutral-800">{formatCurrency(subtotal)}</span>
                         </div>
+                         {budget.discount && budget.discount > 0 && (
+                             <div className="flex justify-between py-2 border-b text-red-600">
+                                <span className="font-medium">Desconto</span>
+                                <span>- {formatCurrency(budget.discount)}</span>
+                            </div>
+                        )}
                         {budget.installmentsCount && budget.installmentsCount > 1 ? (
                             <div className="flex justify-between py-2 border-b">
                                 <span className="font-medium text-neutral-600">{budget.installmentsCount}x</span>
