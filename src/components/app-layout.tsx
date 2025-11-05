@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Home } from 'lucide-react';
@@ -35,7 +35,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 fill={true}
                 objectFit="cover"
                 quality={100}
-                className="opacity-20 dark:opacity-30"
+                className="opacity-30 dark:opacity-40"
                 />
                 <div className="absolute inset-0 bg-background/80"></div>
             </div>
