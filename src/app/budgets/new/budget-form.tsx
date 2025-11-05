@@ -16,6 +16,8 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Client, Salesperson, PaymentPlan, ServiceItem, Budget } from '@/lib/definitions';
 import PageHeader from '@/components/page-header';
 import { useMounted } from '@/hooks/use-mounted';
+import { Combobox } from '@/components/ui/combobox';
+
 
 export default function BudgetForm() {
   const router = useRouter();
@@ -68,6 +70,13 @@ export default function BudgetForm() {
   const selectedPaymentPlan = useMemo(() => {
     return paymentPlans.find(p => p.id === selectedPaymentPlanId);
   }, [selectedPaymentPlanId, paymentPlans]);
+  
+  const clientOptions = useMemo(() => {
+    return clients.map(client => ({
+        value: client.id,
+        label: `${client.name} - ${client.phone}`,
+    }));
+  }, [clients]);
 
   useEffect(() => {
     if (selectedPaymentPlan?.installments === 1) {
@@ -196,16 +205,14 @@ export default function BudgetForm() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="client">Cliente</Label>
-              <Select onValueChange={setSelectedClientId} value={selectedClientId}>
-                <SelectTrigger id="client">
-                  <SelectValue placeholder="Selecione um cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map(client => (
-                    <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+               <Combobox
+                    options={clientOptions}
+                    value={selectedClientId}
+                    onSelect={setSelectedClientId}
+                    placeholder="Selecione um cliente"
+                    searchPlaceholder="Pesquisar cliente..."
+                    notFoundMessage="Nenhum cliente encontrado."
+                />
             </div>
             <div className="space-y-2">
               <Label htmlFor="salesperson">Vendedor</Label>
