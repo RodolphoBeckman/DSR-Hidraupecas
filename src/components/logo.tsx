@@ -1,53 +1,19 @@
 import * as React from 'react';
+import Image from 'next/image';
 
 export const Logo = () => (
-  <div className="flex items-center gap-2 p-2" aria-label="OrçaFácil Logo">
-     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="text-primary"
-    >
-      <path
-        d="M12 2L2 7V17L12 22L22 17V7L12 2Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+  <div className="flex items-center gap-2 p-2 group" aria-label="DSR Orçamento Logo">
+    <div className="relative w-8 h-8 transform-gpu transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110">
+      <Image 
+        src="/logo.png" 
+        alt="DSR Orçamento Logo" 
+        width={32} 
+        height={32} 
+        className="transition-all duration-300 group-hover:drop-shadow-[0_0_8px_hsl(var(--primary))]"
       />
-      <path
-        d="M12 12L22 7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 12V22"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 12L2 7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-       <path
-        d="M17 4.5L7 9.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-    <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
-      OrçaFácil
+    </div>
+    <span className="text-lg font-headline font-bold group-data-[collapsible=icon]:hidden transition-opacity duration-300">
+      DSR Orçamento
     </span>
   </div>
 );

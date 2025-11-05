@@ -14,17 +14,18 @@ export default function Icon() {
       <div
         style={{
           fontSize: 24,
-          background: '#1E3A8A',
+          background: '#000',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white',
-          borderRadius: '8px'
+          color: '#F97316', // Orange color
+          borderRadius: '8px',
+          border: '1px solid #F97316'
         }}
       >
-        B
+        D
       </div>
     ),
     {
