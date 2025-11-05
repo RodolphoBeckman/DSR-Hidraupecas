@@ -53,9 +53,11 @@ export function Combobox({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? selectedOption?.label
-            : placeholder}
+          <div className="truncate">
+            {value
+              ? selectedOption?.label
+              : placeholder}
+          </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
