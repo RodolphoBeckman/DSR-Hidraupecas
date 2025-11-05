@@ -112,7 +112,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                         <div className="flex flex-col">
                             <Logo />
                             {companyInfo && (
-                                <div className="mt-4 text-sm">
+                                <div className="mt-2 text-sm leading-tight">
                                     <p>{companyInfo.name || 'Sua Empresa'}</p>
                                     <p>{companyInfo.address || 'Rua Exemplo, 123, Sala 100'}</p>
                                     <p>{companyInfo.cityStateZip || 'Cidade, Estado, 12345-678'}</p>
