@@ -358,7 +358,7 @@ export default function SettingsPage() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Essa imagem será exibida no fundo de todas as telas.
+              Essa imagem será exibida no fundo de todas as telas. Use uma imagem com proporção 16:9 (ex: 1920x1080) para melhores resultados.
             </p>
           </div>
           <div className="flex-shrink-0">
