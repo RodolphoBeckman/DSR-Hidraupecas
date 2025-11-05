@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Upload, Save } from 'lucide-react';
+import { Upload, Save, UserCircle } from 'lucide-react';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import type { AppSettings, CompanyInfo } from '@/lib/definitions';
+import type { AppSettings, CompanyInfo, UserInfo } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useMounted } from '@/hooks/use-mounted';
@@ -21,6 +21,12 @@ const initialCompanyInfo: CompanyInfo = {
   email: '',
 }
 
+const initialUserInfo: UserInfo = {
+    name: 'Usuário',
+    email: 'usuario@exemplo.com',
+    avatar: null,
+}
+
 export default function SettingsPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { 
@@ -28,17 +34,24 @@ export default function SettingsPage() {
     headerImage: null,
     companyInfo: initialCompanyInfo,
     backgroundImage: null,
+    userInfo: initialUserInfo,
   });
+
   const [qrCodePreview, setQrCodePreview] = useState<string | null>(null);
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(null);
   const [backgroundImagePreview, setBackgroundImagePreview] = useState<string | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(initialCompanyInfo);
+  const [userInfo, setUserInfo] = useState<UserInfo>(initialUserInfo);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
 
   const hasMounted = useMounted();
 
   const qrPlaceholder = PlaceHolderImages.find(p => p.id === 'pix-qr-code')!;
   const headerPlaceholder = PlaceHolderImages.find(p => p.id === 'header-image')!;
   const backgroundPlaceholder = PlaceHolderImages.find(p => p.id === 'background-image')!;
+  const avatarPlaceholder = PlaceHolderImages.find(p => p.id === 'user-avatar')!;
+
 
   useEffect(() => {
     if (hasMounted) {
@@ -48,10 +61,14 @@ export default function SettingsPage() {
       if (settings.companyInfo) {
         setCompanyInfo(settings.companyInfo);
       }
+      if(settings.userInfo) {
+        setUserInfo(settings.userInfo);
+        setAvatarPreview(settings.userInfo.avatar);
+      }
     }
   }, [settings, hasMounted]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'qr' | 'header' | 'background') => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'qr' | 'header' | 'background' | 'avatar') => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -61,8 +78,10 @@ export default function SettingsPage() {
             setQrCodePreview(result);
         } else if (type === 'header') {
             setHeaderImagePreview(result);
-        } else {
+        } else if (type === 'background') {
             setBackgroundImagePreview(result);
+        } else {
+            setAvatarPreview(result);
         }
       };
       reader.readAsDataURL(file);
@@ -74,12 +93,19 @@ export default function SettingsPage() {
     setCompanyInfo(prev => ({...prev, [name]: value}));
   }
 
+  const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUserInfo(prev => ({...prev, [name]: value}));
+  }
+
+
   const handleSave = () => {
     setSettings({ 
         pixQrCode: qrCodePreview, 
         headerImage: headerImagePreview,
         companyInfo: companyInfo,
         backgroundImage: backgroundImagePreview,
+        userInfo: { ...userInfo, avatar: avatarPreview},
     });
     toast({
       title: 'Configurações Salvas',
@@ -94,6 +120,53 @@ export default function SettingsPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Configurações" />
+      
+       <Card>
+        <CardHeader>
+          <CardTitle>Perfil do Operador</CardTitle>
+          <CardDescription>
+            Personalize as informações que aparecem no menu do usuário.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-2 gap-8 items-start">
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="userName">Nome do Operador</Label>
+                    <Input id="userName" name="name" value={userInfo.name ?? ''} onChange={handleUserInfoChange} placeholder="Nome do Operador" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="userEmail">Email</Label>
+                    <Input id="userEmail" name="email" type="email" value={userInfo.email ?? ''} onChange={handleUserInfoChange} placeholder="email@dominio.com" />
+                </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center gap-8">
+                 <div className="flex-1 w-full space-y-2">
+                    <Label htmlFor="avatar-upload">Imagem do Avatar</Label>
+                    <div className="flex items-center gap-2">
+                    <Input id="avatar-upload" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'avatar')} className="flex-1" />
+                    <Button size="icon" className="md:hidden" asChild>
+                        <label htmlFor="avatar-upload"><Upload className="h-4 w-4" /></label>
+                    </Button>
+                    </div>
+                </div>
+                 <div className="flex-shrink-0">
+                    <p className="text-sm font-medium mb-2 text-center">Pré-visualização</p>
+                    <div className="w-24 h-24 rounded-full border-2 border-dashed flex items-center justify-center bg-muted overflow-hidden">
+                    <Image
+                        src={avatarPreview || avatarPlaceholder.imageUrl}
+                        alt="Pré-visualização do avatar"
+                        width={96}
+                        height={96}
+                        className="object-cover w-full h-full"
+                        data-ai-hint={avatarPlaceholder.imageHint}
+                    />
+                    </div>
+                </div>
+            </div>
+
+        </CardContent>
+      </Card>
 
        <Card>
         <CardHeader>

@@ -17,7 +17,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     backgroundImage: null,
     pixQrCode: null,
     headerImage: null,
-    companyInfo: null
+    companyInfo: null,
+    userInfo: null,
   });
   const hasMounted = useMounted();
   

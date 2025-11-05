@@ -44,9 +44,16 @@ export type CompanyInfo = {
   email: string | null;
 };
 
+export type UserInfo = {
+  name: string | null;
+  email: string | null;
+  avatar: string | null;
+};
+
 export type AppSettings = {
   pixQrCode: string | null;
   headerImage: string | null;
   companyInfo: CompanyInfo | null;
   backgroundImage: string | null;
+  userInfo: UserInfo | null;
 };
