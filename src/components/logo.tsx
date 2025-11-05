@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 export const Logo = () => (
   <div className="group flex items-center gap-2 p-2" aria-label="DSR Orçamento Logo">

@@ -37,7 +37,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <Sidebar collapsible="icon">
         <SidebarHeader className={cn(
             "transition-all",
-            state === 'collapsed' && '[&_.logo-text]:hidden'
+            "group-data-[collapsible=icon]:[&_.logo-text]:hidden"
         )}>
           <Logo />
         </SidebarHeader>
