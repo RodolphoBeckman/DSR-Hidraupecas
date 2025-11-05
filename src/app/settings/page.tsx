@@ -9,16 +9,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import type { AppSettings } from '@/lib/definitions';
+import type { AppSettings, CompanyInfo } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useMounted } from '@/hooks/use-mounted';
 
+const initialCompanyInfo: CompanyInfo = {
+  name: '',
+  address: '',
+  cityStateZip: '',
+  email: '',
+}
+
 export default function SettingsPage() {
   const { toast } = useToast();
-  const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { pixQrCode: null, headerImage: null });
+  const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { 
+    pixQrCode: null, 
+    headerImage: null,
+    companyInfo: initialCompanyInfo
+  });
   const [qrCodePreview, setQrCodePreview] = useState<string | null>(null);
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(null);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(initialCompanyInfo);
 
   const hasMounted = useMounted();
 
@@ -29,6 +41,9 @@ export default function SettingsPage() {
     if (hasMounted) {
       setQrCodePreview(settings.pixQrCode);
       setHeaderImagePreview(settings.headerImage);
+      if (settings.companyInfo) {
+        setCompanyInfo(settings.companyInfo);
+      }
     }
   }, [settings, hasMounted]);
 
@@ -47,8 +62,17 @@ export default function SettingsPage() {
     }
   };
 
+  const handleCompanyInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCompanyInfo(prev => ({...prev, [name]: value}));
+  }
+
   const handleSave = () => {
-    setSettings({ pixQrCode: qrCodePreview, headerImage: headerImagePreview });
+    setSettings({ 
+        pixQrCode: qrCodePreview, 
+        headerImage: headerImagePreview,
+        companyInfo: companyInfo 
+    });
     toast({
       title: 'Configurações Salvas',
       description: 'Suas configurações foram atualizadas com sucesso.',
@@ -63,6 +87,35 @@ export default function SettingsPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Configurações" />
       
+       <Card>
+        <CardHeader>
+          <CardTitle>Informações da Empresa</CardTitle>
+          <CardDescription>
+            Estes dados serão exibidos no cabeçalho dos seus orçamentos.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="companyName">Nome da Empresa</Label>
+                    <Input id="companyName" name="name" value={companyInfo.name ?? ''} onChange={handleCompanyInfoChange} placeholder="Sua Empresa LTDA" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="companyAddress">Endereço</Label>
+                    <Input id="companyAddress" name="address" value={companyInfo.address ?? ''} onChange={handleCompanyInfoChange} placeholder="Rua Exemplo, 123, Sala 100" />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="companyCity">Cidade, Estado, CEP</Label>
+                    <Input id="companyCity" name="cityStateZip" value={companyInfo.cityStateZip ?? ''} onChange={handleCompanyInfoChange} placeholder="Cidade, Estado, 12345-678" />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="companyEmail">Email de Contato</Label>
+                    <Input id="companyEmail" name="email" type="email" value={companyInfo.email ?? ''} onChange={handleCompanyInfoChange} placeholder="contato@suaempresa.com" />
+                </div>
+            </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Imagem do Cabeçalho do Orçamento</CardTitle>

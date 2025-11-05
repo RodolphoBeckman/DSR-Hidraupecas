@@ -48,6 +48,8 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
   const handleBack = () => {
     router.back();
   };
+  
+  const companyInfo = settings.companyInfo;
 
   return (
     <div className="bg-gray-100">
@@ -84,7 +86,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
       <div ref={printAreaRef}>
         <div className="bg-white text-black font-sans print-area">
           
-          <div className="relative h-48 w-full">
+          <div className="relative h-48 w-full text-white">
             <Image
                 src={settings.headerImage || headerPlaceholder.imageUrl}
                 alt="Cabeçalho do Orçamento"
@@ -92,37 +94,38 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 className="object-cover"
                 data-ai-hint={headerPlaceholder.imageHint}
             />
-             <div className="absolute inset-0 bg-black/50 flex items-end p-10">
-                 <h1 className="text-4xl font-bold text-white">ORÇAMENTO</h1>
+             <div className="absolute inset-0 bg-black/60 flex items-center justify-between p-10">
+                 <div className="flex flex-col">
+                    <Logo />
+                    {companyInfo && (
+                        <div className="mt-4 text-sm">
+                            <p>{companyInfo.name || 'Sua Empresa'}</p>
+                            <p>{companyInfo.address || 'Rua Exemplo, 123, Sala 100'}</p>
+                            <p>{companyInfo.cityStateZip || 'Cidade, Estado, 12345-678'}</p>
+                            <p>{companyInfo.email || 'contato@suaempresa.com'}</p>
+                        </div>
+                    )}
+                 </div>
+                 <div>
+                    <h1 className="text-4xl font-bold text-white mb-2">ORÇAMENTO</h1>
+                    <p className="font-semibold text-lg text-right"># {budget.id}</p>
+                    <p className="text-right">Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
+                 </div>
              </div>
           </div>
           
           <div className="p-10">
-            <header className="flex justify-between items-start border-b-2 border-neutral-200 pb-6 mb-8">
-                <div>
-                <Logo />
-                <div className="mt-4 text-sm text-neutral-600">
-                    <p>Sua Empresa</p>
-                    <p>Rua Exemplo, 123, Sala 100</p>
-                    <p>Cidade, Estado, 12345-678</p>
-                    <p>contato@suaempresa.com</p>
-                </div>
-                </div>
-                <div className="text-right">
-                <p className="font-semibold text-neutral-800">Orçamento # {budget.id}</p>
-                <p className="text-neutral-600">Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
-                </div>
+            <header className="flex justify-between items-start pb-6 mb-8">
+                <section>
+                    <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-3">Cobrança para</h2>
+                    <div className="text-neutral-800">
+                    <p className="font-bold">{budget.client.name}</p>
+                    <p>{budget.client.email}</p>
+                    <p>{budget.client.phone}</p>
+                    </div>
+                </section>
             </header>
             
-            <section className="mb-8">
-                <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-3">Cobrança para</h2>
-                <div className="text-neutral-800">
-                <p className="font-bold">{budget.client.name}</p>
-                <p>{budget.client.email}</p>
-                <p>{budget.client.phone}</p>
-                </div>
-            </section>
-
             <section className="mb-8">
                 <table className="w-full text-left">
                 <thead>

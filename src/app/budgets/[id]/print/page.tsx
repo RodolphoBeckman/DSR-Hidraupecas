@@ -3,16 +3,30 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import type { Budget, AppSettings } from '@/lib/definitions';
+import type { Budget, AppSettings, CompanyInfo } from '@/lib/definitions';
 import { BudgetPrintView } from '@/components/budget-print-view';
 import { Skeleton } from '@/components/ui/skeleton';
+
+
+const initialCompanyInfo: CompanyInfo = {
+  name: null,
+  address: null,
+  cityStateZip: null,
+  email: null,
+}
+
+const initialSettings: AppSettings = {
+    pixQrCode: null,
+    headerImage: null,
+    companyInfo: initialCompanyInfo
+}
 
 export default function PrintBudgetPage() {
   const params = useParams();
   const { id } = params;
 
   const [budgets] = useLocalStorage<Budget[]>('budgets', []);
-  const [settings] = useLocalStorage<AppSettings>('app-settings', { pixQrCode: null });
+  const [settings] = useLocalStorage<AppSettings>('app-settings', initialSettings);
   
   const [budget, setBudget] = useState<Budget | null>(null);
   const [isLoading, setIsLoading] = useState(true);

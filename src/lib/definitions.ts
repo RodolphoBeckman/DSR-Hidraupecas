@@ -35,7 +35,15 @@ export type Budget = {
   createdAt: string;
 };
 
+export type CompanyInfo = {
+  name: string | null;
+  address: string | null;
+  cityStateZip: string | null;
+  email: string | null;
+};
+
 export type AppSettings = {
   pixQrCode: string | null;
   headerImage: string | null;
+  companyInfo: CompanyInfo | null;
 };
