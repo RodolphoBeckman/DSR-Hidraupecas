@@ -1,5 +1,6 @@
-import { ImageResponse } from 'next/og'
-
+import { ImageResponse } from 'next/og';
+import Image from 'next/image';
+ 
 export const runtime = 'edge'
  
 export const size = {
@@ -13,19 +14,19 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 24,
-          background: '#000',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#F97316', // Orange color
-          borderRadius: '8px',
-          border: '1px solid #F97316'
         }}
       >
-        H
+        <img 
+          src="https://6000-firebase-studio-1762296448079.cluster-lqzyk3r5hzdcaqv6zwm7wv6pwa.cloudworkstations.dev/Logo.png" 
+          width={32} 
+          height={32} 
+          alt="DSR HIDRAUPEÇAS Logo" 
+        />
       </div>
     ),
     {
