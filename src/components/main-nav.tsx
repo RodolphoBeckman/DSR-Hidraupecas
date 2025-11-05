@@ -16,12 +16,18 @@ import {
   CreditCard,
   Settings,
   Archive,
+  LayoutDashboard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
   {
     href: '/',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+  },
+  {
+    href: '/budgets/new',
     label: 'Novo Orçamento',
     icon: FilePlus2,
   },
