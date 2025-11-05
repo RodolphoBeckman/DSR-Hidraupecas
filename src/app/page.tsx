@@ -10,8 +10,6 @@ import {
   Settings,
   Archive,
   LayoutDashboard,
-  BarChart2,
-  LineChart
 } from 'lucide-react';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,8 +68,7 @@ export default function HomePage() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {menuItems.map((item) => (
-          <Link href={item.href} key={item.href} legacyBehavior>
-            <a className="block hover:no-underline">
+          <Link href={item.href} key={item.href} className="block hover:no-underline">
               <Card className="hover:bg-card/60 hover:border-primary transition-all duration-200 cursor-pointer h-full futuristic-glow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-lg font-medium text-primary">
@@ -83,7 +80,6 @@ export default function HomePage() {
                   <p className="text-sm text-muted-foreground">{item.description}</p>
                 </CardContent>
               </Card>
-            </a>
           </Link>
         ))}
       </div>

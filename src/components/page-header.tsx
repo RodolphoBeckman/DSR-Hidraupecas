@@ -24,7 +24,7 @@ export default function PageHeader({ title, className, children }: PageHeaderPro
     >
         <div className="flex items-center gap-4">
             {!isHomePage && (
-                 <Link href="/" legacyBehavior>
+                 <Link href="/">
                     <Button variant="outline" size="icon" className="h-8 w-8">
                         <ArrowLeft className="h-4 w-4" />
                         <span className="sr-only">Voltar</span>
