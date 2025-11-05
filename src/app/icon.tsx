@@ -1,5 +1,4 @@
 import { ImageResponse } from 'next/og';
-import Image from 'next/image';
  
 export const runtime = 'edge'
  
@@ -10,6 +9,10 @@ export const size = {
 export const contentType = 'image/png'
  
 export default function Icon() {
+  const logoUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://dsr-hidraupecas.vercel.app/Logo.png' 
+    : '/Logo.png';
+
   return new ImageResponse(
     (
       <div
@@ -19,10 +22,11 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          backgroundColor: 'transparent',
         }}
       >
         <img 
-          src="https://6000-firebase-studio-1762296448079.cluster-lqzyk3r5hzdcaqv6zwm7wv6pwa.cloudworkstations.dev/Logo.png" 
+          src={logoUrl} 
           width={32} 
           height={32} 
           alt="DSR HIDRAUPEÇAS Logo" 
