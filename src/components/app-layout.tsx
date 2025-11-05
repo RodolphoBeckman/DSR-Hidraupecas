@@ -16,6 +16,7 @@ import { UserNav } from '@/components/user-nav';
 import { Logo } from '@/components/logo';
 import { Button } from './ui/button';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 function CustomSidebarTrigger() {
     const { toggleSidebar, state } = useSidebar();
@@ -28,10 +29,14 @@ function CustomSidebarTrigger() {
 
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const { state } = useSidebar();
+  
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
-        <SidebarHeader>
+        <SidebarHeader className={cn(
+            state === 'collapsed' && '[&>#logo-text]:hidden'
+        )}>
           <Logo />
         </SidebarHeader>
         <SidebarContent>

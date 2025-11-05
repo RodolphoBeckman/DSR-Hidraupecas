@@ -11,7 +11,7 @@ export const Logo = () => (
         height={32} 
       />
     </div>
-    <span className="text-lg font-headline font-bold">
+    <span id="logo-text" className="text-lg font-headline font-bold transition-opacity duration-200">
       DSR Orçamento
     </span>
   </div>
