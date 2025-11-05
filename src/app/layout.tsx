@@ -7,6 +7,9 @@ import { ThemeProvider } from '@/components/theme-provider';
 export const metadata: Metadata = {
   title: 'DSR HIDRAUPEÇAS',
   description: 'Simplifique seu processo de cotação de serviços.',
+  icons: {
+    icon: '/Icone.png',
+  },
 };
 
 export default function RootLayout({
