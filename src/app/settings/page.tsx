@@ -1,18 +1,31 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { Upload, Save, UserCircle } from 'lucide-react';
+import { Upload, Save, UserCircle, Download, UploadCloud, FileSpreadsheet } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+import * as XLSX from 'xlsx';
+
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-import type { AppSettings, CompanyInfo, UserInfo } from '@/lib/definitions';
+import type { AppSettings, CompanyInfo, UserInfo, Client } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useMounted } from '@/hooks/use-mounted';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const initialCompanyInfo: CompanyInfo = {
   name: '',
@@ -27,6 +40,9 @@ const initialUserInfo: UserInfo = {
     avatar: null,
 }
 
+const LOCAL_STORAGE_KEYS = ['budgets', 'clients', 'salespeople', 'paymentPlans', 'app-settings'];
+
+
 export default function SettingsPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { 
@@ -36,14 +52,19 @@ export default function SettingsPage() {
     backgroundImage: null,
     userInfo: initialUserInfo,
   });
-
+  const [clients, setClients] = useLocalStorage<Client[]>('clients', []);
+  
   const [qrCodePreview, setQrCodePreview] = useState<string | null>(null);
   const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(null);
   const [backgroundImagePreview, setBackgroundImagePreview] = useState<string | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(initialCompanyInfo);
   const [userInfo, setUserInfo] = useState<UserInfo>(initialUserInfo);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
+  const [isImportAlertOpen, setIsImportAlertOpen] = useState(false);
+  const [dataToImport, setDataToImport] = useState<string | null>(null);
+  
+  const importFileRef = useRef<HTMLInputElement>(null);
+  const importClientsFileRef = useRef<HTMLInputElement>(null);
 
   const hasMounted = useMounted();
 
@@ -112,6 +133,158 @@ export default function SettingsPage() {
       description: 'Suas configurações foram atualizadas com sucesso.',
     });
   };
+
+  const handleExportData = () => {
+    try {
+      const dataToExport: { [key: string]: any } = {};
+      LOCAL_STORAGE_KEYS.forEach(key => {
+        const item = localStorage.getItem(key);
+        if (item) {
+          dataToExport[key] = JSON.parse(item);
+        }
+      });
+      
+      const jsonString = JSON.stringify(dataToExport, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `dados-app-orcamentos-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: 'Exportação Concluída',
+        description: 'Os dados do aplicativo foram exportados com sucesso.',
+      });
+
+    } catch (error) {
+      console.error("Erro ao exportar dados:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro na Exportação',
+        description: 'Não foi possível exportar os dados do aplicativo.',
+      });
+    }
+  };
+  
+  const handleImportFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        setDataToImport(text);
+        setIsImportAlertOpen(true);
+      };
+      reader.readAsText(file);
+    }
+    // Reset file input
+    if(importFileRef.current) importFileRef.current.value = '';
+  };
+  
+  const handleConfirmImport = () => {
+    if (!dataToImport) return;
+    try {
+      const importedData = JSON.parse(dataToImport);
+      let validKeys = 0;
+      LOCAL_STORAGE_KEYS.forEach(key => {
+        if (importedData[key]) {
+          localStorage.setItem(key, JSON.stringify(importedData[key]));
+          validKeys++;
+        }
+      });
+
+      if (validKeys === 0) {
+        throw new Error("O arquivo não contém dados válidos para importação.");
+      }
+
+      toast({
+        title: 'Importação Concluída',
+        description: 'Os dados foram importados com sucesso. A página será recarregada.',
+      });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+
+    } catch (error: any) {
+      console.error("Erro ao importar dados:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro na Importação',
+        description: error.message || 'O arquivo selecionado é inválido ou está corrompido.',
+      });
+    } finally {
+        setIsImportAlertOpen(false);
+        setDataToImport(null);
+    }
+  };
+
+  const handleImportClientsFromFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const json: any[] = XLSX.utils.sheet_to_json(worksheet);
+
+        const newClients: Client[] = json.map(row => {
+          if (!row.name || !row.email || !row.phone) {
+            throw new Error('A planilha deve conter as colunas "name", "email" e "phone".');
+          }
+          return {
+            id: uuidv4(),
+            name: String(row.name),
+            email: String(row.email),
+            phone: String(row.phone),
+          };
+        }).filter(Boolean);
+        
+        if (newClients.length > 0) {
+          setClients(prevClients => [...prevClients, ...newClients]);
+          toast({
+            title: 'Clientes Importados',
+            description: `${newClients.length} novos clientes foram adicionados com sucesso.`,
+          });
+        } else {
+           toast({
+            variant: 'destructive',
+            title: 'Nenhum Cliente Encontrado',
+            description: 'A planilha parece estar vazia ou em um formato incorreto.',
+          });
+        }
+
+      } catch (error: any) {
+        console.error("Erro ao importar planilha de clientes:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro na Importação',
+          description: error.message || 'Não foi possível ler o arquivo da planilha.',
+        });
+      }
+    };
+    reader.onerror = () => {
+        toast({
+            variant: 'destructive',
+            title: 'Erro de Leitura',
+            description: 'Não foi possível ler o arquivo selecionado.',
+        });
+    }
+    reader.readAsArrayBuffer(file);
+    
+    // Reset file input
+    if(importClientsFileRef.current) importClientsFileRef.current.value = '';
+  };
+
 
   if (!hasMounted) {
     return null;
@@ -201,6 +374,31 @@ export default function SettingsPage() {
               />
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Gerenciamento de Dados</CardTitle>
+            <CardDescription>Exporte todos os dados do aplicativo para um backup ou importe para restaurar.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={handleExportData} className="flex-1">
+                    <Download className="mr-2" /> Exportar Dados do App
+                </Button>
+                <Button onClick={() => importFileRef.current?.click()} className="flex-1" variant="outline">
+                    <UploadCloud className="mr-2" /> Importar Dados do App
+                </Button>
+                 <Button onClick={() => importClientsFileRef.current?.click()} className="flex-1" variant="outline">
+                    <FileSpreadsheet className="mr-2" /> Importar Clientes (CSV)
+                </Button>
+                <input type="file" ref={importFileRef} className="hidden" accept=".json" onChange={handleImportFileChange} />
+                <input type="file" ref={importClientsFileRef} className="hidden" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={handleImportClientsFromFile} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Ao importar, todos os dados atuais serão substituídos. Recomenda-se fazer um backup (exportar) antes de importar. A importação de clientes adicionará novos clientes à lista existente. O arquivo CSV deve conter as colunas: 'name', 'email', 'phone'.
+            </p>
         </CardContent>
       </Card>
       
@@ -309,6 +507,23 @@ export default function SettingsPage() {
           </Button>
         </CardFooter>
       </Card>
+
+      <AlertDialog open={isImportAlertOpen} onOpenChange={setIsImportAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Importação de Dados?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação substituirá TODOS os dados atuais do aplicativo (orçamentos, clientes, configurações, etc.) pelos dados do arquivo que você selecionou. Esta ação não pode ser desfeita.
+              <br/><br/>
+              <strong>Recomenda-se fortemente que você exporte seus dados atuais antes de continuar.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsImportAlertOpen(false)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmImport}>Sim, Importar e Substituir Tudo</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
