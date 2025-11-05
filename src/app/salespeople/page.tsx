@@ -21,6 +21,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useToast } from '@/hooks/use-toast';
 import type { Salesperson } from '@/lib/definitions';
 import PageHeader from '@/components/page-header';
+import { useMounted } from '@/hooks/use-mounted';
 
 const emptySalesperson: Salesperson = { id: '', name: '', whatsapp: '' };
 
@@ -29,6 +30,7 @@ export default function SalespeoplePage() {
   const [salespeople, setSalespeople] = useLocalStorage<Salesperson[]>('salespeople', []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentSalesperson, setCurrentSalesperson] = useState<Salesperson>(emptySalesperson);
+  const hasMounted = useMounted();
 
   const handleOpenDialog = (salesperson?: Salesperson) => {
     setCurrentSalesperson(salesperson || emptySalesperson);
@@ -62,6 +64,10 @@ export default function SalespeoplePage() {
     setSalespeople(salespeople.filter(s => s.id !== id));
     toast({ title: 'Vendedor Excluído', description: 'O vendedor foi excluído.' });
   };
+
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

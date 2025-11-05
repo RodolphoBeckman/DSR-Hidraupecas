@@ -12,17 +12,21 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { AppSettings } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useMounted } from '@/hooks/use-mounted';
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { pixQrCode: null });
   const [qrCodePreview, setQrCodePreview] = useState<string | null>(null);
+  const hasMounted = useMounted();
 
   const qrPlaceholder = PlaceHolderImages.find(p => p.id === 'pix-qr-code')!;
 
   useEffect(() => {
-    setQrCodePreview(settings.pixQrCode);
-  }, [settings.pixQrCode]);
+    if (hasMounted) {
+      setQrCodePreview(settings.pixQrCode);
+    }
+  }, [settings.pixQrCode, hasMounted]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -42,6 +46,10 @@ export default function SettingsPage() {
       description: 'Sua imagem de QR Code do PIX foi atualizada com sucesso.',
     });
   };
+
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

@@ -22,6 +22,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useToast } from '@/hooks/use-toast';
 import type { PaymentPlan } from '@/lib/definitions';
 import PageHeader from '@/components/page-header';
+import { useMounted } from '@/hooks/use-mounted';
 
 const emptyPlan: PaymentPlan = { id: '', name: '', description: '', installments: 1 };
 
@@ -30,6 +31,7 @@ export default function PaymentPlansPage() {
   const [paymentPlans, setPaymentPlans] = useLocalStorage<PaymentPlan[]>('paymentPlans', []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<PaymentPlan>(emptyPlan);
+  const hasMounted = useMounted();
 
   const handleOpenDialog = (plan?: PaymentPlan) => {
     setCurrentPlan(plan || emptyPlan);
@@ -63,6 +65,10 @@ export default function PaymentPlansPage() {
     setPaymentPlans(paymentPlans.filter(p => p.id !== id));
     toast({ title: 'Plano Excluído', description: 'O plano de pagamento foi excluído.' });
   };
+
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

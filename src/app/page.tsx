@@ -15,10 +15,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Client, Salesperson, PaymentPlan, ServiceItem, Budget } from '@/lib/definitions';
 import PageHeader from '@/components/page-header';
+import { useMounted } from '@/hooks/use-mounted';
 
 export default function BudgetCreationPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const hasMounted = useMounted();
 
   const [clients] = useLocalStorage<Client[]>('clients', []);
   const [salespeople] = useLocalStorage<Salesperson[]>('salespeople', []);
@@ -125,6 +127,10 @@ export default function BudgetCreationPage() {
           });
       }
   };
+
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

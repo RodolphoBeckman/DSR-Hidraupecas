@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -22,6 +21,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useToast } from '@/hooks/use-toast';
 import type { Client } from '@/lib/definitions';
 import PageHeader from '@/components/page-header';
+import { useMounted } from '@/hooks/use-mounted';
 
 const emptyClient: Client = { id: '', name: '', email: '', phone: '' };
 
@@ -30,6 +30,7 @@ export default function ClientsPage() {
   const [clients, setClients] = useLocalStorage<Client[]>('clients', []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentClient, setCurrentClient] = useState<Client>(emptyClient);
+  const hasMounted = useMounted();
 
   const handleOpenDialog = (client?: Client) => {
     setCurrentClient(client || emptyClient);
@@ -63,6 +64,10 @@ export default function ClientsPage() {
     setClients(clients.filter(c => c.id !== id));
     toast({ title: 'Cliente Excluído', description: 'O cliente foi excluído.' });
   };
+
+  if (!hasMounted) {
+    return null;
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

@@ -19,6 +19,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Budget } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useMounted } from '@/hooks/use-mounted';
 
 export default function BudgetsPage() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function BudgetsPage() {
   const [budgets, setBudgets] = useLocalStorage<Budget[]>('budgets', []);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const hasMounted = useMounted();
 
   const filteredBudgets = useMemo(() => {
     return budgets
@@ -71,6 +73,10 @@ export default function BudgetsPage() {
   const handleClearFilters = () => {
     setSearchTerm('');
     setDateRange(undefined);
+  }
+
+  if (!hasMounted) {
+    return null;
   }
 
   return (
