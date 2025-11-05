@@ -27,12 +27,11 @@ function CustomSidebarTrigger() {
     )
 }
 
-
-export function AppLayout({ children }: { children: React.ReactNode }) {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   const { state } = useSidebar();
-  
+
   return (
-    <SidebarProvider>
+    <>
       <Sidebar collapsible="icon">
         <SidebarHeader className={cn(
             state === 'collapsed' && '[&>#logo-text]:hidden'
@@ -56,6 +55,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </header>
         <main>{children}</main>
       </SidebarInset>
+    </>
+  );
+}
+
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <LayoutContent>{children}</LayoutContent>
     </SidebarProvider>
   );
 }
