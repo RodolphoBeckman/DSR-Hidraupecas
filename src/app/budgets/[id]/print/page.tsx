@@ -25,14 +25,6 @@ export default function PrintBudgetPage() {
     setIsLoading(false);
   }, [id, budgets]);
 
-  useEffect(() => {
-    if (budget) {
-      setTimeout(() => {
-        window.print();
-      }, 500);
-    }
-  }, [budget]);
-
   if (isLoading) {
     return (
       <div className="p-8">

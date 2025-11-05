@@ -1,8 +1,13 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { Printer, ArrowLeft } from 'lucide-react';
 import type { Budget, AppSettings } from '@/lib/definitions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Logo } from '@/components/logo';
+import { Button } from '@/components/ui/button';
 
 interface BudgetPrintViewProps {
   budget: Budget;
@@ -10,11 +15,20 @@ interface BudgetPrintViewProps {
 }
 
 export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
+  const router = useRouter();
   const qrPlaceholder = PlaceHolderImages.find(p => p.id === 'pix-qr-code')!;
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleBack = () => {
+    router.back();
+  };
 
   return (
     <div className="bg-white text-black font-sans p-10 print:p-0">
@@ -23,7 +37,23 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none; }
         }
+        @page {
+          size: auto;
+          margin: 0;
+        }
       `}</style>
+
+      <div className="no-print fixed top-4 right-4 flex gap-2">
+        <Button onClick={handlePrint} variant="default">
+          <Printer className="mr-2 h-4 w-4" />
+          Imprimir / Salvar PDF
+        </Button>
+        <Button onClick={handleBack} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar
+        </Button>
+      </div>
+
       <header className="flex justify-between items-start border-b-2 border-neutral-200 pb-6 mb-8">
         <div>
           <Logo />
