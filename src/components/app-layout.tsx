@@ -35,9 +35,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 fill={true}
                 objectFit="cover"
                 quality={100}
-                className="opacity-30 dark:opacity-40"
+                className="opacity-50"
                 />
-                <div className="absolute inset-0 bg-background/80"></div>
+                <div className="absolute inset-0 bg-background/90"></div>
             </div>
         </>
       )}
