@@ -8,7 +8,6 @@ import type { Budget, AppSettings } from '@/lib/definitions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
-import html2pdf from 'html2pdf.js';
 
 interface BudgetPrintViewProps {
   budget: Budget;
@@ -28,9 +27,10 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
     window.print();
   };
   
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     const element = printAreaRef.current;
     if (element) {
+        const html2pdf = (await import('html2pdf.js')).default;
         const opt = {
           margin:       [0,0,0,0],
           filename:     `orcamento-${budget.id}.pdf`,
