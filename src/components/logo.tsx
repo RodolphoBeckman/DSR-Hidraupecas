@@ -5,7 +5,7 @@ export const Logo = () => (
   <div className="flex items-center gap-2 p-2 group" aria-label="DSR Orçamento Logo">
     <div className="relative w-8 h-8 transform-gpu transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110">
       <Image 
-        src="/logo.png" 
+        src="/Logo.png" 
         alt="DSR Orçamento Logo" 
         width={32} 
         height={32} 
