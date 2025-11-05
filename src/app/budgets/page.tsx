@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -20,6 +19,16 @@ import type { Budget } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useMounted } from '@/hooks/use-mounted';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function BudgetsPage() {
   const router = useRouter();
@@ -27,6 +36,8 @@ export default function BudgetsPage() {
   const [budgets, setBudgets] = useLocalStorage<Budget[]>('budgets', []);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [budgetToDelete, setBudgetToDelete] = useState<string | null>(null);
   const hasMounted = useMounted();
 
   const filteredBudgets = useMemo(() => {
@@ -61,9 +72,18 @@ export default function BudgetsPage() {
       return format(new Date(dateString), "dd/MM/yyyy 'às' HH:mm");
   }
 
-  const handleDeleteBudget = (id: string) => {
-    setBudgets(budgets.filter(b => b.id !== id));
-    toast({ title: 'Orçamento Excluído', description: `O orçamento ${id} foi removido.` });
+  const handleDeleteBudget = () => {
+    if (budgetToDelete) {
+      setBudgets(budgets.filter(b => b.id !== budgetToDelete));
+      toast({ title: 'Orçamento Excluído', description: `O orçamento ${budgetToDelete} foi removido.` });
+      setBudgetToDelete(null);
+    }
+    setIsAlertOpen(false);
+  };
+  
+  const openDeleteConfirmation = (id: string) => {
+    setBudgetToDelete(id);
+    setIsAlertOpen(true);
   };
 
   const handlePrintBudget = (id: string) => {
@@ -171,7 +191,7 @@ export default function BudgetsPage() {
                            <Button variant="outline" size="sm" onClick={() => handlePrintBudget(budget.id)}>
                             <Printer className="mr-2 h-4 w-4" /> Imprimir
                           </Button>
-                          <Button variant="destructive" size="sm" onClick={() => handleDeleteBudget(budget.id)}>
+                          <Button variant="destructive" size="sm" onClick={() => openDeleteConfirmation(budget.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Excluir
                           </Button>
                         </div>
@@ -190,7 +210,22 @@ export default function BudgetsPage() {
           </div>
         </CardContent>
       </Card>
+      
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Essa ação não pode ser desfeita. Isso excluirá permanentemente o orçamento e removerá seus dados de nossos servidores.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBudgetToDelete(null)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteBudget}>Continuar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }
-
