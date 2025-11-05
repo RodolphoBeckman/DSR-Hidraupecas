@@ -102,14 +102,13 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 <Image
                     src={settings.headerImage || headerPlaceholder.imageUrl}
                     alt="Cabeçalho do Orçamento"
-                    layout="fill"
-                    objectFit="cover"
+                    fill
                     className="object-cover"
                     data-ai-hint={headerPlaceholder.imageHint}
                 />
-                 <div className="absolute inset-0 bg-black/60 flex flex-col justify-between p-6 z-10">
-                    <div className="flex justify-between items-start">
-                        <div className="flex-shrink-0">
+                 <div className="absolute inset-0 bg-black/60 flex flex-col justify-between p-4 z-10">
+                    <div className="flex justify-between items-start gap-4">
+                        <div style={{ flexShrink: 0 }}>
                             <Logo variant="white" />
                             {companyInfo && (
                                 <div className="text-sm leading-none space-y-0 mt-2">
@@ -120,7 +119,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                                 </div>
                             )}
                         </div>
-                         <div className="text-right flex-shrink-0 ml-4">
+                         <div className="text-right flex-shrink-0">
                             <h1 className="text-4xl font-bold text-white mb-2">ORÇAMENTO</h1>
                             <p className="font-semibold text-lg"># {budget.id}</p>
                             <p>Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
