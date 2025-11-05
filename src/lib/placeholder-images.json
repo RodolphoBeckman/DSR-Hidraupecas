@@ -5,6 +5,12 @@
       "description": "Placeholder for PIX QR Code",
       "imageUrl": "https://images.unsplash.com/photo-1559131397-f94da358f7ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxxciUyMGNvZGV8ZW58MHx8fHwxNzYyMjUzOTk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "qr code"
+    },
+    {
+      "id": "header-image",
+      "description": "Placeholder for Budget Header Image",
+      "imageUrl": "https://images.unsplash.com/photo-1690493461842-ea407c84a22a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx0cmFjdG9yJTIwc3Vuc2V0fGVufDB8fHx8MTc2MjI2ODM1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tractor sunset"
     }
   ]
 }

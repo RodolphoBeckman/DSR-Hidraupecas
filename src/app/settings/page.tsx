@@ -16,34 +16,42 @@ import { useMounted } from '@/hooks/use-mounted';
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { pixQrCode: null });
+  const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { pixQrCode: null, headerImage: null });
   const [qrCodePreview, setQrCodePreview] = useState<string | null>(null);
+  const [headerImagePreview, setHeaderImagePreview] = useState<string | null>(null);
+
   const hasMounted = useMounted();
 
   const qrPlaceholder = PlaceHolderImages.find(p => p.id === 'pix-qr-code')!;
+  const headerPlaceholder = PlaceHolderImages.find(p => p.id === 'header-image')!;
 
   useEffect(() => {
     if (hasMounted) {
       setQrCodePreview(settings.pixQrCode);
+      setHeaderImagePreview(settings.headerImage);
     }
-  }, [settings.pixQrCode, hasMounted]);
+  }, [settings, hasMounted]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'qr' | 'header') => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setQrCodePreview(reader.result as string);
+        if(type === 'qr'){
+            setQrCodePreview(reader.result as string);
+        } else {
+            setHeaderImagePreview(reader.result as string);
+        }
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleSave = () => {
-    setSettings({ pixQrCode: qrCodePreview });
+    setSettings({ pixQrCode: qrCodePreview, headerImage: headerImagePreview });
     toast({
       title: 'Configurações Salvas',
-      description: 'Sua imagem de QR Code do PIX foi atualizada com sucesso.',
+      description: 'Suas configurações foram atualizadas com sucesso.',
     });
   };
 
@@ -54,6 +62,43 @@ export default function SettingsPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Configurações" />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Imagem do Cabeçalho do Orçamento</CardTitle>
+          <CardDescription>
+            Faça o upload da imagem que será exibida no cabeçalho dos orçamentos em PDF.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-1 w-full space-y-2">
+            <Label htmlFor="header-image-upload">Imagem do Cabeçalho</Label>
+            <div className="flex items-center gap-2">
+              <Input id="header-image-upload" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'header')} className="flex-1" />
+              <Button size="icon" className="md:hidden" asChild>
+                <label htmlFor="header-image-upload"><Upload className="h-4 w-4" /></label>
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Use uma imagem panorâmica (ex: 1200x400) para melhores resultados.
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <p className="text-sm font-medium mb-2 text-center">Pré-visualização</p>
+            <div className="w-64 h-24 rounded-lg border-2 border-dashed flex items-center justify-center bg-muted overflow-hidden">
+              <Image
+                src={headerImagePreview || headerPlaceholder.imageUrl}
+                alt="Pré-visualização da imagem do cabeçalho"
+                width={256}
+                height={96}
+                className="object-cover w-full h-full"
+                data-ai-hint={headerPlaceholder.imageHint}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Pagamento PIX</CardTitle>
@@ -65,7 +110,7 @@ export default function SettingsPage() {
           <div className="flex-1 w-full space-y-2">
             <Label htmlFor="qr-code-upload">Imagem do QR Code</Label>
             <div className="flex items-center gap-2">
-              <Input id="qr-code-upload" type="file" accept="image/*" onChange={handleFileChange} className="flex-1" />
+              <Input id="qr-code-upload" type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'qr')} className="flex-1" />
               <Button size="icon" className="md:hidden" asChild>
                 <label htmlFor="qr-code-upload"><Upload className="h-4 w-4" /></label>
               </Button>

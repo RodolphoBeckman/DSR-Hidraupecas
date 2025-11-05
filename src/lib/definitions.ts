@@ -37,4 +37,5 @@ export type Budget = {
 
 export type AppSettings = {
   pixQrCode: string | null;
+  headerImage: string | null;
 };
