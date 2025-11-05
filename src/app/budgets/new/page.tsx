@@ -38,6 +38,8 @@ export default function BudgetCreationPage() {
   const [newItemDesc, setNewItemDesc] = useState('');
   const [newItemValue, setNewItemValue] = useState('');
   const [discount, setDiscount] = useState<number>(0);
+  const [status, setStatus] = useState<Budget['status']>('pendente');
+
 
   useEffect(() => {
     if (budgetId && budgets.length > 0) {
@@ -46,6 +48,7 @@ export default function BudgetCreationPage() {
         setSelectedClientId(budgetToEdit.client.id);
         setSelectedSalespersonId(budgetToEdit.salesperson.id);
         setItems(budgetToEdit.items);
+        setStatus(budgetToEdit.status);
         if(budgetToEdit.paymentPlan) {
             setSelectedPaymentPlanId(budgetToEdit.paymentPlan.id);
         }
@@ -115,7 +118,7 @@ export default function BudgetCreationPage() {
         return null;
     }
 
-    const budgetData: Omit<Budget, 'id' | 'createdAt'> = {
+    const budgetData = {
         client,
         salesperson,
         items,
@@ -123,6 +126,7 @@ export default function BudgetCreationPage() {
         installmentsCount: selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 ? installmentsCount : undefined,
         discount: discount > 0 ? discount : undefined,
         total,
+        status,
     };
     
     if (budgetId) {
@@ -137,7 +141,8 @@ export default function BudgetCreationPage() {
         const newBudget: Budget = {
             id: `ORC-${new Date().getTime()}`,
             createdAt: new Date().toISOString(),
-            ...budgetData
+            ...budgetData,
+            status: 'pendente',
         };
         setBudgets([...budgets, newBudget]);
         toast({
@@ -159,7 +164,7 @@ export default function BudgetCreationPage() {
       const savedBudgetId = handleSaveBudget();
       if (!savedBudgetId) return;
 
-      const budget = budgets.find(b => b.id === savedBudgetId) ?? {id: savedBudgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId)};
+      const budget = budgets.find(b => b.id === savedBudgetId) ?? {id: savedBudgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId), status: 'pendente'};
 
       if (budget?.salesperson?.whatsapp) {
           const message = encodeURIComponent(`Olá ${budget.client?.name}, aqui está seu orçamento #${budget.id} com um total de ${formatCurrency(budget.total)}. Por favor me avise se tiver alguma dúvida.`);

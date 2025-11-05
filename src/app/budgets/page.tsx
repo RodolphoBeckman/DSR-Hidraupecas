@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Trash2, Printer, Calendar as CalendarIcon, X, Edit } from 'lucide-react';
+import { Search, Trash2, Printer, Calendar as CalendarIcon, X, Edit, CheckCircle, Clock } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -29,6 +29,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function BudgetsPage() {
   const router = useRouter();
@@ -91,13 +93,21 @@ export default function BudgetsPage() {
   };
 
   const handleEditBudget = (id: string) => {
-    router.push(`/?id=${id}`);
+    router.push(`/budgets/new?id=${id}`);
   };
   
   const handleClearFilters = () => {
     setSearchTerm('');
     setDateRange(undefined);
   }
+
+  const handleStatusChange = (id: string, status: 'pendente' | 'realizado') => {
+    setBudgets(budgets.map(b => b.id === id ? { ...b, status } : b));
+    toast({
+      title: 'Status Alterado',
+      description: `O orçamento ${id} foi marcado como ${status}.`
+    });
+  };
 
   if (!hasMounted) {
     return null;
@@ -173,6 +183,7 @@ export default function BudgetsPage() {
                   <TableHead>Nº Orçamento</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Data</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead className="text-center">Ações</TableHead>
                 </TableRow>
@@ -189,6 +200,33 @@ export default function BudgetsPage() {
                         </div>
                       </TableCell>
                       <TableCell>{formatDate(budget.createdAt)}</TableCell>
+                       <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className={cn(
+                                "w-32 justify-start",
+                                budget.status === 'pendente' ? 'text-yellow-500 border-yellow-500' : 'text-green-500 border-green-500'
+                            )}>
+                              {budget.status === 'pendente' ? (
+                                  <Clock className="mr-2 h-4 w-4" />
+                              ) : (
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                              )}
+                              {budget.status === 'pendente' ? 'Pendente' : 'Realizado'}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => handleStatusChange(budget.id, 'pendente')}>
+                              <Clock className="mr-2 h-4 w-4" />
+                              Pendente
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(budget.id, 'realizado')}>
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              Realizado
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                       <TableCell className="text-right">{formatCurrency(budget.total)}</TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-2">
@@ -207,7 +245,7 @@ export default function BudgetsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       Nenhum orçamento encontrado.
                     </TableCell>
                   </TableRow>

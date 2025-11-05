@@ -8,25 +8,43 @@ import {
   SidebarContent,
   SidebarInset,
   SidebarTrigger,
+  SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { MainNav } from '@/components/main-nav';
 import { UserNav } from '@/components/user-nav';
 import { Logo } from '@/components/logo';
+import { Button } from './ui/button';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+
+function CustomSidebarTrigger() {
+    const { toggleSidebar, state } = useSidebar();
+    return (
+        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+            {state === 'expanded' ? <PanelLeftClose /> : <PanelLeftOpen />}
+        </Button>
+    )
+}
+
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar collapsible="icon">
         <SidebarHeader>
           <Logo />
         </SidebarHeader>
         <SidebarContent>
           <MainNav />
         </SidebarContent>
+        <SidebarRail />
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
           <SidebarTrigger className="sm:hidden" />
+          <div className='hidden sm:block'>
+            <CustomSidebarTrigger />
+          </div>
           <div className="ml-auto">
             <UserNav />
           </div>

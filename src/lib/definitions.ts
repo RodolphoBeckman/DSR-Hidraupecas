@@ -34,6 +34,7 @@ export type Budget = {
   discount?: number;
   total: number;
   createdAt: string;
+  status: 'pendente' | 'realizado';
 };
 
 export type CompanyInfo = {
