@@ -107,7 +107,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     className="object-cover"
                     data-ai-hint={headerPlaceholder.imageHint}
                 />
-                 <div className="absolute inset-0 bg-black/60 flex flex-col justify-between p-8 z-10">
+                 <div className="absolute inset-0 bg-black/60 flex flex-col justify-between p-6 z-10">
                     <div className="flex justify-between items-start">
                         <div className="flex-shrink-0">
                             <Logo variant="white" />
@@ -132,7 +132,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
             <div className="p-10">
                 <header className="flex justify-between items-start pb-6 mb-8">
                     <section>
-                        <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-3">Cobrança para</h2>
+                        <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-3">Orçamento para</h2>
                         <div className="text-neutral-800">
                         <p className="font-bold">{budget.client.name}</p>
                         <p>{budget.client.email}</p>
