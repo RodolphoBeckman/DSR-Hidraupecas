@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -14,6 +15,7 @@ import {
   Briefcase,
   CreditCard,
   Settings,
+  Archive,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +24,11 @@ const menuItems = [
     href: '/',
     label: 'Novo Orçamento',
     icon: FilePlus2,
+  },
+  {
+    href: '/budgets',
+    label: 'Orçamentos',
+    icon: Archive,
   },
   {
     href: '/clients',
