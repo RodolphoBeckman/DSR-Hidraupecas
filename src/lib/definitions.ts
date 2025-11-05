@@ -48,4 +48,5 @@ export type AppSettings = {
   pixQrCode: string | null;
   headerImage: string | null;
   companyInfo: CompanyInfo | null;
+  backgroundImage: string | null;
 };

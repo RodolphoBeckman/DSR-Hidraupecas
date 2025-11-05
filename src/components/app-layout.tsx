@@ -1,77 +1,75 @@
 "use client";
 
-import React from 'react';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarInset,
-  SidebarTrigger,
-  SidebarRail,
-  useSidebar,
-} from '@/components/ui/sidebar';
-import { MainNav } from '@/components/main-nav';
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Home } from 'lucide-react';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useMounted } from '@/hooks/use-mounted';
+import type { AppSettings } from '@/lib/definitions';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { UserNav } from '@/components/user-nav';
 import { Logo } from '@/components/logo';
 import { Button } from './ui/button';
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
-// Componente que usa o hook e PRECISA estar dentro do Provider.
-function CustomSidebarTrigger() {
-    const { toggleSidebar, state } = useSidebar();
-    return (
-        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
-            {state === 'expanded' ? <PanelLeftClose /> : <PanelLeftOpen />}
-        </Button>
-    )
-}
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  const [settings] = useLocalStorage<AppSettings>('app-settings', { 
+    backgroundImage: null,
+    pixQrCode: null,
+    headerImage: null,
+    companyInfo: null
+  });
+  const hasMounted = useMounted();
+  const [bgImage, setBgImage] = useState<string | null>(null);
 
-// O conteúdo do layout que depende do contexto do Sidebar.
-function LayoutContent({ children }: { children: React.ReactNode }) {
-  // `useSidebar` é chamado aqui, dentro de um componente que será renderizado dentro do `SidebarProvider`.
-  const { state } = useSidebar();
+  const backgroundPlaceholder = PlaceHolderImages.find(p => p.id === 'background-image')!;
+
+  useEffect(() => {
+    if (hasMounted) {
+      setBgImage(settings.backgroundImage);
+    }
+  }, [settings, hasMounted]);
+  
+  const finalBgImage = bgImage || backgroundPlaceholder.imageUrl;
 
   return (
-    <>
-      <Sidebar collapsible="icon">
-        <SidebarHeader className={cn(
-            "transition-all",
-            "group-data-[collapsible=icon]:[&_.logo-text]:hidden"
-        )}>
-          <Logo />
-        </SidebarHeader>
-        <SidebarContent>
-          <MainNav />
-        </SidebarContent>
-        <SidebarRail />
-      </Sidebar>
-      <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          {/* O SidebarTrigger padrão para mobile */}
-          <SidebarTrigger className="sm:hidden" />
-          {/* O gatilho customizado para desktop */}
-          <div className='hidden sm:block'>
-            <CustomSidebarTrigger />
-          </div>
-          <div className="ml-auto">
-            <UserNav />
+    <div className="relative min-h-screen w-full">
+      {hasMounted && (
+        <>
+            <div className="fixed inset-0 z-0">
+                <Image
+                src={finalBgImage}
+                alt="Background"
+                layout="fill"
+                objectFit="cover"
+                quality={100}
+                className="opacity-20"
+                />
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
+            </div>
+        </>
+      )}
+
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <header className="sticky top-0 z-40 w-full border-b bg-background/60 backdrop-blur-lg">
+          <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
+            <Link href="/" className="flex items-center gap-2">
+                <Logo />
+            </Link>
+            <div className="flex flex-1 items-center justify-end space-x-4">
+              <nav className="flex items-center space-x-1">
+                <Link href="/">
+                  <Button variant="ghost">
+                    <Home className="h-4 w-4 mr-2" /> Início
+                  </Button>
+                </Link>
+                 <UserNav />
+              </nav>
+            </div>
           </div>
         </header>
-        <main>{children}</main>
-      </SidebarInset>
-    </>
-  );
-}
-
-// O componente principal que exportamos.
-export function AppLayout({ children }: { children: React.ReactNode }) {
-  // A função AppLayout agora APENAS renderiza o provider
-  // e passa o `children` para o LayoutContent, que está DENTRO do provider.
-  return (
-    <SidebarProvider>
-      <LayoutContent>{children}</LayoutContent>
-    </SidebarProvider>
+        <main className="flex-1 container">{children}</main>
+      </div>
+    </div>
   );
 }

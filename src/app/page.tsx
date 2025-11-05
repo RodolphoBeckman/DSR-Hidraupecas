@@ -1,154 +1,91 @@
 "use client";
 
-import { useMemo } from 'react';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
-import { subDays, format } from 'date-fns';
-import { Archive, Users, CheckCircle, Clock, DollarSign } from 'lucide-react';
-
-import { useLocalStorage } from '@/hooks/use-local-storage';
-import { useMounted } from '@/hooks/use-mounted';
-import type { Budget, Client } from '@/lib/definitions';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  FilePlus2,
+  Users,
+  Briefcase,
+  CreditCard,
+  Settings,
+  Archive,
+  LayoutDashboard,
+  BarChart2,
+  LineChart
+} from 'lucide-react';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
-export default function DashboardPage() {
-  const [budgets] = useLocalStorage<Budget[]>('budgets', []);
-  const [clients] = useLocalStorage<Client[]>('clients', []);
-  const hasMounted = useMounted();
+const menuItems = [
+  {
+    href: '/dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    description: 'Visualize as métricas e gráficos.'
+  },
+  {
+    href: '/budgets/new',
+    label: 'Novo Orçamento',
+    icon: FilePlus2,
+    description: 'Crie um novo orçamento para um cliente.'
+  },
+  {
+    href: '/budgets',
+    label: 'Orçamentos',
+    icon: Archive,
+    description: 'Gerencie orçamentos existentes.'
+  },
+  {
+    href: '/clients',
+    label: 'Clientes',
+    icon: Users,
+    description: 'Adicione e gerencie seus clientes.'
+  },
+  {
+    href: '/salespeople',
+    label: 'Vendedores',
+    icon: Briefcase,
+    description: 'Gerencie sua equipe de vendedores.'
+  },
+  {
+    href: '/payment-plans',
+    label: 'Planos de Pag.',
+    icon: CreditCard,
+    description: 'Configure formas de pagamento.'
+  },
+  {
+    href: '/settings',
+    label: 'Configurações',
+    icon: Settings,
+    description: 'Personalize as configurações do app.'
+  },
+];
 
-  const {
-    budgetCount,
-    clientCount,
-    pendingBudgets,
-    completedBudgets,
-    completedValue,
-  } = useMemo(() => {
-    return {
-      budgetCount: budgets.length,
-      clientCount: clients.length,
-      pendingBudgets: budgets.filter(b => b.status === 'pendente').length,
-      completedBudgets: budgets.filter(b => b.status === 'realizado').length,
-      completedValue: budgets
-        .filter(b => b.status === 'realizado')
-        .reduce((acc, b) => acc + b.total, 0),
-    };
-  }, [budgets, clients]);
-
-
-  const recentBudgetsChartData = useMemo(() => {
-    const today = new Date();
-    const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, i)).reverse();
-
-    const data = last7Days.map(day => {
-      const formattedDate = format(day, 'dd/MM');
-      const budgetsOnDay = budgets.filter(budget => {
-        const budgetDate = new Date(budget.createdAt);
-        return budgetDate.toDateString() === day.toDateString();
-      });
-      return {
-        date: formattedDate,
-        orçamentos: budgetsOnDay.length,
-      };
-    });
-    return data;
-  }, [budgets]);
-  
-  const chartConfig = {
-    orçamentos: {
-      label: 'Orçamentos',
-      color: 'hsl(var(--primary))',
-    },
-  };
-
-  const formatCurrency = (value: number) => {
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  };
-
-  if (!hasMounted) {
-    return (
-        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-            <PageHeader title="Dashboard" />
-        </div>
-    );
-  }
+export default function HomePage() {
+    const router = useRouter();
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Dashboard" />
+      <PageHeader title="Menu Principal" />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Orçamentos Totais</CardTitle>
-            <Archive className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{budgetCount}</div>
-            <p className="text-xs text-muted-foreground">Total de orçamentos registrados</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clientes Cadastrados</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{clientCount}</div>
-            <p className="text-xs text-muted-foreground">Total de clientes na base</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Orçamentos Realizados</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{completedBudgets}</div>
-             <p className="text-xs text-muted-foreground">Faturamento de {formatCurrency(completedValue)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Orçamentos Pendentes</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingBudgets}</div>
-             <p className="text-xs text-muted-foreground">Aguardando conclusão</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1">
-        <Card>
-          <CardHeader>
-            <CardTitle>Orçamentos nos Últimos 7 Dias</CardTitle>
-          </CardHeader>
-          <CardContent>
-             <ChartContainer config={chartConfig} className="h-[250px] w-full">
-              <BarChart data={recentBudgetsChartData} accessibilityLayer>
-                 <XAxis
-                  dataKey="date"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => value.slice(0, 5)}
-                />
-                <YAxis
-                  stroke="#888888"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `${value}`}
-                  allowDecimals={false}
-                />
-                 <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                <Bar dataKey="orçamentos" fill="var(--color-orçamentos)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {menuItems.map((item) => (
+          <Link href={item.href} key={item.href} legacyBehavior>
+            <a className="block hover:no-underline">
+              <Card className="hover:bg-card/60 hover:border-primary transition-all duration-200 cursor-pointer h-full futuristic-glow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-lg font-medium text-primary">
+                    {item.label}
+                  </CardTitle>
+                  <item.icon className="h-6 w-6 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                </CardContent>
+              </Card>
+            </a>
+          </Link>
+        ))}
       </div>
     </div>
   );
