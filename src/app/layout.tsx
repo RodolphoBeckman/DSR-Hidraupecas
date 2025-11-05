@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { AppLayout } from '@/components/app-layout';
 
 export const metadata: Metadata = {
-  title: 'DSR Orçamento',
+  title: 'DSR HIDRAUPEÇAS',
   description: 'Simplifique seu processo de cotação de serviços.',
 };
 

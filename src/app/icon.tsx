@@ -25,7 +25,7 @@ export default function Icon() {
           border: '1px solid #F97316'
         }}
       >
-        D
+        H
       </div>
     ),
     {

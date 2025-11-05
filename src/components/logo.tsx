@@ -7,11 +7,11 @@ interface LogoProps {
 }
 
 export const Logo = ({ variant = 'default' }: LogoProps) => (
-  <div className="group flex items-center gap-2 p-2" aria-label="DSR Orçamento Logo">
+  <div className="group flex items-center gap-2 p-2" aria-label="DSR HIDRAUPEÇAS Logo">
     <div className="relative h-8 w-8 transform-gpu transition-transform duration-500 group-hover:scale-110">
       <Image 
         src="/Logo.png" 
-        alt="DSR Orçamento Logo" 
+        alt="DSR HIDRAUPEÇAS Logo" 
         width={32} 
         height={32} 
         className="transition-all duration-300 group-hover:drop-shadow-[0_0_4px_hsl(var(--primary))]"
@@ -21,7 +21,7 @@ export const Logo = ({ variant = 'default' }: LogoProps) => (
         "logo-text text-lg font-headline font-bold transition-opacity duration-200",
         variant === 'white' && 'text-white'
     )}>
-      DSR Orçamento
+      DSR HIDRAUPEÇAS
     </span>
   </div>
 );
