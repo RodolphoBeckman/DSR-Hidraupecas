@@ -109,10 +109,10 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 />
                  <div className="absolute inset-0 bg-black/60 flex flex-col justify-between p-10 z-10">
                     <div className="flex justify-between items-start">
-                        <div className="flex flex-col">
+                        <div>
                             <Logo variant="white" />
                             {companyInfo && (
-                                <div className="text-sm leading-none space-y-0">
+                                <div className="text-sm leading-none space-y-0 mt-2">
                                     <p>{companyInfo.name || 'Sua Empresa'}</p>
                                     <p>{companyInfo.address || 'Rua Exemplo, 123, Sala 100'}</p>
                                     <p>{companyInfo.cityStateZip || 'Cidade, Estado, 12345-678'}</p>
