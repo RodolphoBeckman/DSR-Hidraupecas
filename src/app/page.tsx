@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { PlusCircle, Trash2, FileText, Share2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,8 +19,11 @@ import { useMounted } from '@/hooks/use-mounted';
 
 export default function BudgetCreationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const hasMounted = useMounted();
+  
+  const budgetId = searchParams.get('id');
 
   const [clients] = useLocalStorage<Client[]>('clients', []);
   const [salespeople] = useLocalStorage<Salesperson[]>('salespeople', []);
@@ -34,6 +37,23 @@ export default function BudgetCreationPage() {
   const [items, setItems] = useState<ServiceItem[]>([]);
   const [newItemDesc, setNewItemDesc] = useState('');
   const [newItemValue, setNewItemValue] = useState('');
+
+  useEffect(() => {
+    if (budgetId && budgets.length > 0) {
+      const budgetToEdit = budgets.find(b => b.id === budgetId);
+      if (budgetToEdit) {
+        setSelectedClientId(budgetToEdit.client.id);
+        setSelectedSalespersonId(budgetToEdit.salesperson.id);
+        setItems(budgetToEdit.items);
+        if(budgetToEdit.paymentPlan) {
+            setSelectedPaymentPlanId(budgetToEdit.paymentPlan.id);
+        }
+        if(budgetToEdit.installmentsCount) {
+            setInstallmentsCount(budgetToEdit.installmentsCount);
+        }
+      }
+    }
+  }, [budgetId, budgets]);
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.value, 0), [items]);
   
@@ -50,6 +70,11 @@ export default function BudgetCreationPage() {
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
+  
+  const formatInputValue = (value: number) => {
+    return value.toFixed(2).replace('.', ',');
+  }
+
 
   const handleAddItem = () => {
     const value = parseFloat(newItemValue.replace('.', '').replace(',', '.'));
@@ -69,52 +94,64 @@ export default function BudgetCreationPage() {
   const handleRemoveItem = (id: string) => {
     setItems(items.filter(item => item.id !== id));
   };
-
-  const handleCreateBudget = () => {
+  
+  const handleSaveBudget = () => {
     const client = clients.find(c => c.id === selectedClientId);
     const salesperson = salespeople.find(s => s.id === selectedSalespersonId);
-
+    
     if (!client || !salesperson || items.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'Informações Incompletas',
-        description: 'Por favor, selecione um cliente, um vendedor e adicione pelo menos um item de serviço.',
-      });
-      return;
+        toast({
+            variant: 'destructive',
+            title: 'Informações Incompletas',
+            description: 'Por favor, selecione um cliente, um vendedor e adicione pelo menos um item de serviço.',
+        });
+        return null;
     }
 
-    const newBudget: Budget = {
-      id: `ORC-${new Date().getTime()}`,
-      client,
-      salesperson,
-      items,
-      paymentPlan: selectedPaymentPlan,
-      installmentsCount: selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 ? installmentsCount : undefined,
-      total,
-      createdAt: new Date().toISOString(),
+    const budgetData: Omit<Budget, 'id' | 'createdAt'> = {
+        client,
+        salesperson,
+        items,
+        paymentPlan: selectedPaymentPlan,
+        installmentsCount: selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 ? installmentsCount : undefined,
+        total,
     };
-
-    setBudgets([...budgets, newBudget]);
-    toast({
-      title: 'Orçamento Criado',
-      description: `O orçamento ${newBudget.id} foi salvo com sucesso.`,
-    });
     
-    return newBudget.id;
+    if (budgetId) {
+        const updatedBudgets = budgets.map(b => b.id === budgetId ? { ...b, ...budgetData } : b);
+        setBudgets(updatedBudgets);
+        toast({
+            title: 'Orçamento Atualizado',
+            description: `O orçamento ${budgetId} foi atualizado com sucesso.`,
+        });
+        return budgetId;
+    } else {
+        const newBudget: Budget = {
+            id: `ORC-${new Date().getTime()}`,
+            createdAt: new Date().toISOString(),
+            ...budgetData
+        };
+        setBudgets([...budgets, newBudget]);
+        toast({
+          title: 'Orçamento Criado',
+          description: `O orçamento ${newBudget.id} foi salvo com sucesso.`,
+        });
+        return newBudget.id;
+    }
   };
 
   const handleGeneratePdf = () => {
-    const budgetId = handleCreateBudget();
-    if (budgetId) {
-      router.push(`/budgets/${budgetId}/print`);
+    const savedBudgetId = handleSaveBudget();
+    if (savedBudgetId) {
+      router.push(`/budgets/${savedBudgetId}/print`);
     }
   };
   
   const handleShareOnWhatsApp = () => {
-      const budgetId = handleCreateBudget();
-      if (!budgetId) return;
+      const savedBudgetId = handleSaveBudget();
+      if (!savedBudgetId) return;
 
-      const budget = budgets.find(b => b.id === budgetId) ?? {id: budgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId)};
+      const budget = budgets.find(b => b.id === savedBudgetId) ?? {id: savedBudgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId)};
 
       if (budget?.salesperson?.whatsapp) {
           const message = encodeURIComponent(`Olá ${budget.client?.name}, aqui está seu orçamento #${budget.id} com um total de ${formatCurrency(budget.total)}. Por favor me avise se tiver alguma dúvida.`);
@@ -131,10 +168,12 @@ export default function BudgetCreationPage() {
   if (!hasMounted) {
     return null;
   }
+  
+  const pageTitle = budgetId ? 'Editar Orçamento' : 'Criar Novo Orçamento';
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Criar Novo Orçamento" />
+      <PageHeader title={pageTitle} />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="lg:col-span-1">
           <CardHeader>
@@ -262,7 +301,10 @@ export default function BudgetCreationPage() {
              </div>
           </CardContent>
           <CardFooter className="gap-2 border-t pt-6">
-            <Button onClick={handleGeneratePdf} className="flex-1">
+            <Button onClick={handleSaveBudget} className="flex-1">
+                <FileText /> {budgetId ? 'Salvar Alterações' : 'Salvar Orçamento'}
+            </Button>
+            <Button onClick={handleGeneratePdf} variant="secondary" className="flex-1">
                 <FileText /> Salvar e Gerar PDF
             </Button>
             <Button onClick={handleShareOnWhatsApp} variant="secondary" className="flex-1">

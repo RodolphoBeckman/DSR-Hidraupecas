@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Trash2, Printer, Calendar as CalendarIcon, X } from 'lucide-react';
+import { Search, Trash2, Printer, Calendar as CalendarIcon, X, Edit } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -88,6 +88,10 @@ export default function BudgetsPage() {
 
   const handlePrintBudget = (id: string) => {
     router.push(`/budgets/${id}/print`);
+  };
+
+  const handleEditBudget = (id: string) => {
+    router.push(`/?id=${id}`);
   };
   
   const handleClearFilters = () => {
@@ -188,6 +192,9 @@ export default function BudgetsPage() {
                       <TableCell className="text-right">{formatCurrency(budget.total)}</TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-2">
+                           <Button variant="outline" size="sm" onClick={() => handleEditBudget(budget.id)}>
+                            <Edit className="mr-2 h-4 w-4" /> Editar
+                          </Button>
                            <Button variant="outline" size="sm" onClick={() => handlePrintBudget(budget.id)}>
                             <Printer className="mr-2 h-4 w-4" /> Imprimir
                           </Button>
