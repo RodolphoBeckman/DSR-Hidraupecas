@@ -23,7 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { PaymentPlan } from '@/lib/definitions';
 import PageHeader from '@/components/page-header';
 
-const emptyPlan: PaymentPlan = { id: '', name: '', description: '' };
+const emptyPlan: PaymentPlan = { id: '', name: '', description: '', installments: 1 };
 
 export default function PaymentPlansPage() {
   const { toast } = useToast();
@@ -85,6 +85,9 @@ export default function PaymentPlansPage() {
                   <div className="font-medium">
                     <p className="text-base text-secondary-foreground">{plan.name}</p>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap">{plan.description}</p>
+                    {plan.installments && plan.installments > 1 && (
+                         <p className="text-sm text-muted-foreground">Até {plan.installments}x</p>
+                    )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
                     <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(plan)}>
@@ -119,6 +122,17 @@ export default function PaymentPlansPage() {
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="description" className="text-right pt-2">Descrição</Label>
               <Textarea id="description" value={currentPlan.description} onChange={e => setCurrentPlan({...currentPlan, description: e.target.value})} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="installments" className="text-right">Nº de Parcelas</Label>
+                <Input 
+                    id="installments" 
+                    type="number" 
+                    value={currentPlan.installments || 1} 
+                    onChange={e => setCurrentPlan({...currentPlan, installments: parseInt(e.target.value, 10) || 1})} 
+                    className="col-span-3" 
+                    min="1"
+                />
             </div>
           </div>
           <DialogFooter>

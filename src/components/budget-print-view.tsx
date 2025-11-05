@@ -132,6 +132,12 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     <span className="font-medium text-neutral-600">Subtotal</span>
                     <span className="text-neutral-800">{formatCurrency(budget.total)}</span>
                 </div>
+                {budget.installmentsCount && budget.installmentsCount > 1 ? (
+                    <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium text-neutral-600">{budget.installmentsCount}x</span>
+                        <span className="text-neutral-800">{formatCurrency(budget.total / budget.installmentsCount)}</span>
+                    </div>
+                ) : null}
                 <div className="flex justify-between py-3 bg-primary text-primary-foreground font-bold text-xl p-3 rounded-md">
                     <span>Total</span>
                     <span>{formatCurrency(budget.total)}</span>
@@ -146,6 +152,9 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                         <>
                             <h3 className="font-bold text-neutral-800 mb-2">Plano de Pagamento: {budget.paymentPlan.name}</h3>
                             <p className="mb-4">{budget.paymentPlan.description}</p>
+                             {budget.installmentsCount && budget.installmentsCount > 1 && (
+                                <p className="mb-4">Pagamento em {budget.installmentsCount} parcelas de {formatCurrency(budget.total/budget.installmentsCount)}.</p>
+                            )}
                         </>
                     )}
                     <h3 className="font-bold text-neutral-800 mb-2">Instruções de Pagamento</h3>

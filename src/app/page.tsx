@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PlusCircle, Trash2, FileText, Share2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -28,12 +28,23 @@ export default function BudgetCreationPage() {
   const [selectedClientId, setSelectedClientId] = useState<string>('');
   const [selectedSalespersonId, setSelectedSalespersonId] = useState<string>('');
   const [selectedPaymentPlanId, setSelectedPaymentPlanId] = useState<string>('');
+  const [installmentsCount, setInstallmentsCount] = useState<number>(1);
   const [items, setItems] = useState<ServiceItem[]>([]);
   const [newItemDesc, setNewItemDesc] = useState('');
   const [newItemValue, setNewItemValue] = useState('');
 
   const total = useMemo(() => items.reduce((sum, item) => sum + item.value, 0), [items]);
   
+  const selectedPaymentPlan = useMemo(() => {
+    return paymentPlans.find(p => p.id === selectedPaymentPlanId);
+  }, [selectedPaymentPlanId, paymentPlans]);
+
+  useEffect(() => {
+    if (selectedPaymentPlan?.installments === 1) {
+      setInstallmentsCount(1);
+    }
+  }, [selectedPaymentPlan]);
+
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
@@ -70,14 +81,13 @@ export default function BudgetCreationPage() {
       return;
     }
 
-    const paymentPlan = paymentPlans.find(p => p.id === selectedPaymentPlanId);
-
     const newBudget: Budget = {
       id: `ORC-${new Date().getTime()}`,
       client,
       salesperson,
       items,
-      paymentPlan,
+      paymentPlan: selectedPaymentPlan,
+      installmentsCount: selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 ? installmentsCount : undefined,
       total,
       createdAt: new Date().toISOString(),
     };
@@ -209,18 +219,40 @@ export default function BudgetCreationPage() {
             <CardDescription>Selecione um plano de pagamento e finalize o orçamento.</CardDescription>
           </CardHeader>
           <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="payment-plan">Plano de Pagamento</Label>
-                <Select onValueChange={setSelectedPaymentPlanId} value={selectedPaymentPlanId}>
-                    <SelectTrigger id="payment-plan">
-                    <SelectValue placeholder="Selecione um plano de pagamento (opcional)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    {paymentPlans.map(plan => (
-                        <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="payment-plan">Plano de Pagamento</Label>
+                    <Select onValueChange={setSelectedPaymentPlanId} value={selectedPaymentPlanId}>
+                        <SelectTrigger id="payment-plan">
+                        <SelectValue placeholder="Selecione um plano de pagamento (opcional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        {paymentPlans.map(plan => (
+                            <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                {selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 && (
+                     <div className="space-y-2">
+                        <Label htmlFor="installments">Parcelas</Label>
+                        <Select 
+                            onValueChange={(value) => setInstallmentsCount(parseInt(value, 10))} 
+                            value={String(installmentsCount)}
+                        >
+                            <SelectTrigger id="installments">
+                                <SelectValue placeholder="Selecione o nº de parcelas" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Array.from({ length: selectedPaymentPlan.installments }, (_, i) => i + 1).map(installment => (
+                                    <SelectItem key={installment} value={String(installment)}>
+                                        {installment}x de {formatCurrency(total / installment)}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
              </div>
           </CardContent>
           <CardFooter className="gap-2 border-t pt-6">

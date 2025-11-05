@@ -15,6 +15,7 @@ export type PaymentPlan = {
   id: string;
   name: string;
   description: string;
+  installments?: number;
 };
 
 export type ServiceItem = {
@@ -29,6 +30,7 @@ export type Budget = {
   salesperson: Salesperson;
   items: ServiceItem[];
   paymentPlan?: PaymentPlan;
+  installmentsCount?: number;
   total: number;
   createdAt: string;
 };
