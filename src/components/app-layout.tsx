@@ -20,21 +20,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     companyInfo: null
   });
   const hasMounted = useMounted();
-  const [bgImage, setBgImage] = useState<string | null>(null);
-
-  const backgroundPlaceholder = PlaceHolderImages.find(p => p.id === 'background-image')!;
-
-  useEffect(() => {
-    if (hasMounted) {
-      setBgImage(settings.backgroundImage);
-    }
-  }, [settings, hasMounted]);
   
-  const finalBgImage = bgImage || backgroundPlaceholder.imageUrl;
+  const backgroundPlaceholder = PlaceHolderImages.find(p => p.id === 'background-image')!;
+  const finalBgImage = settings.backgroundImage || backgroundPlaceholder.imageUrl;
 
   return (
     <div className="relative min-h-screen w-full">
-      {hasMounted && (
+      {hasMounted && finalBgImage && (
         <>
             <div className="fixed inset-0 z-0">
                 <Image
@@ -45,7 +37,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 quality={100}
                 className="opacity-20"
                 />
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
+                <div className="absolute inset-0 bg-background/80"></div>
             </div>
         </>
       )}
@@ -53,9 +45,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="relative z-10 flex min-h-screen flex-col">
         <header className="sticky top-0 z-40 w-full border-b bg-background/60 backdrop-blur-lg">
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            <Link href="/" className="flex items-center gap-2">
-                <Logo />
-            </Link>
+            <Logo />
             <div className="flex flex-1 items-center justify-end space-x-4">
               <nav className="flex items-center space-x-1">
                 <Link href="/">

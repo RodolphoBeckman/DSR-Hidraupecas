@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 interface LogoProps {
@@ -7,7 +8,7 @@ interface LogoProps {
 }
 
 export const Logo = ({ variant = 'default' }: LogoProps) => (
-  <div className="group flex items-center gap-2 p-2" aria-label="DSR HIDRAUPEÇAS Logo">
+  <Link href="/" className="group flex items-center gap-2 p-2" aria-label="DSR HIDRAUPEÇAS Logo">
     <div className="relative h-8 w-8 transform-gpu transition-transform duration-500 group-hover:scale-110">
       <Image 
         src="/Logo.png" 
@@ -23,5 +24,5 @@ export const Logo = ({ variant = 'default' }: LogoProps) => (
     )}>
       DSR HIDRAUPEÇAS
     </span>
-  </div>
+  </Link>
 );
