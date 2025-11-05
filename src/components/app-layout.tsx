@@ -32,10 +32,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <Image
                 src={finalBgImage}
                 alt="Background"
-                layout="fill"
+                fill={true}
                 objectFit="cover"
                 quality={100}
-                className="opacity-20"
+                className="opacity-20 dark:opacity-30"
                 />
                 <div className="absolute inset-0 bg-background/80"></div>
             </div>
@@ -44,7 +44,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       <div className="relative z-10 flex min-h-screen flex-col">
         <header className="sticky top-0 z-40 w-full border-b bg-background/60 backdrop-blur-lg">
-          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+           <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
             <Logo />
             <div className="flex flex-1 items-center justify-end space-x-4">
               <nav className="flex items-center space-x-1">
