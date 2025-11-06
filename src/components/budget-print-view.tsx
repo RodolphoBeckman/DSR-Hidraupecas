@@ -213,21 +213,23 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 </section>
 
                 <footer className="border-t-2 border-neutral-200 pt-6 mt-8">
-                    <div className="text-sm text-neutral-600">
-                        {budget.paymentPlan && (
-                            <div className="mb-4">
-                                <h3 className="font-bold text-neutral-800 mb-1">Plano de Pagamento: {budget.paymentPlan.name}</h3>
-                                <p>{budget.paymentPlan.description}</p>
-                                {budget.installmentsCount && budget.installmentsCount > 1 && (
-                                    <p>Pagamento em {budget.installmentsCount} parcelas de {formatCurrency(budget.total/budget.installmentsCount)}.</p>
-                                )}
-                            </div>
-                        )}
+                  <div className="flex justify-between gap-8 text-sm text-neutral-600">
+                      {budget.paymentPlan && (
+                        <div className="w-1/2">
+                          <h3 className="font-bold text-neutral-800 mb-1">Plano de Pagamento: {budget.paymentPlan.name}</h3>
+                          <p>{budget.paymentPlan.description}</p>
+                          {budget.installmentsCount && budget.installmentsCount > 1 && (
+                              <p>Pagamento em {budget.installmentsCount} parcelas de {formatCurrency(budget.total/budget.installmentsCount)}.</p>
+                          )}
+                        </div>
+                      )}
+                      <div className="w-1/2">
                         <h3 className="font-bold text-neutral-800 mb-1">Instruções de Pagamento</h3>
                         <p>Por favor, realize o pagamento via PIX utilizando o QR code.</p>
                         <p className="mt-4">Obrigado pela sua preferência!</p>
                         <p className="font-semibold mt-2">Vendedor: {budget.salesperson.name}</p>
-                    </div>
+                      </div>
+                  </div>
                 </footer>
             </div>
             </div>
