@@ -98,7 +98,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
         <div ref={printAreaRef} className="max-w-4xl mx-auto shadow-lg">
             <div className="bg-white text-black font-sans print-area text-[9px] p-2">
             
-            <div className="relative h-16 w-full text-white">
+            <div className="relative h-24 w-full text-white">
                 <Image
                     src={settings.headerImage || headerPlaceholder.imageUrl}
                     alt="Cabeçalho do Orçamento"
