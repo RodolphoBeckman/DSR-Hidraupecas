@@ -8,8 +8,6 @@ import { BudgetPrintView } from '@/components/budget-print-view';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer } from 'lucide-react';
-import html2pdf from 'html2pdf.js';
-
 
 export default function PrintBudgetPage() {
   const params = useParams();
@@ -33,9 +31,12 @@ export default function PrintBudgetPage() {
     router.back();
   };
   
-  const handlePrint = () => {
+  const handlePrint = async () => {
     const element = printRef.current;
     if (element) {
+        // Dynamic import for client-side only library
+        const html2pdf = (await import('html2pdf.js')).default;
+        
         const opt = {
           margin:       0,
           filename:     `orcamento-${budget?.id}.pdf`,
