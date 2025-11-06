@@ -192,7 +192,7 @@ export default function BudgetForm() {
     return `DSR-${String(highestId + 1).padStart(4, '0')}`;
   };
 
-  const handleSaveBudget = () => {
+  const handleSaveBudget = (redirect = false) => {
     const client = clients.find(c => c.id === selectedClientId);
     const salesperson = salespeople.find(s => s.id === selectedSalespersonId);
     
@@ -222,18 +222,20 @@ export default function BudgetForm() {
         status,
     };
     
+    let savedBudgetId: string;
+
     if (budgetId) {
+        savedBudgetId = budgetId;
         const updatedBudgets = budgets.map(b => b.id === budgetId ? { ...b, ...budgetData, createdAt: b.createdAt } : b);
         setBudgets(updatedBudgets);
         toast({
             title: 'Orçamento Atualizado',
             description: `O orçamento ${budgetId} foi atualizado com sucesso.`,
         });
-        return budgetId;
     } else {
-        const newBudgetId = getNextBudgetId();
+        savedBudgetId = getNextBudgetId();
         const newBudget: Budget = {
-            id: newBudgetId,
+            id: savedBudgetId,
             createdAt: new Date().toISOString(),
             ...budgetData,
             status: 'pendente',
@@ -243,9 +245,18 @@ export default function BudgetForm() {
           title: 'Orçamento Criado',
           description: `O orçamento ${newBudget.id} foi salvo com sucesso.`,
         });
-        return newBudget.id;
     }
+
+    if (redirect) {
+      router.push('/budgets');
+    }
+
+    return savedBudgetId;
   };
+  
+  const handleSaveAndRedirect = () => {
+    handleSaveBudget(true);
+  }
 
   const handleGeneratePdf = () => {
     const savedBudgetId = handleSaveBudget();
@@ -482,7 +493,7 @@ export default function BudgetForm() {
              </div>
           </CardContent>
           <CardFooter className="gap-2 border-t pt-6">
-            <Button onClick={handleSaveBudget} className="flex-1">
+            <Button onClick={handleSaveAndRedirect} className="flex-1">
                 <FileText /> {budgetId ? 'Salvar Alterações' : 'Salvar Orçamento'}
             </Button>
             <Button onClick={handleGeneratePdf} variant="secondary" className="flex-1">
