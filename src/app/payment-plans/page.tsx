@@ -123,11 +123,11 @@ export default function PaymentPlansPage() {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Nome</Label>
-              <Input id="name" value={currentPlan.name} onChange={e => setCurrentPlan({...currentPlan, name: e.target.value})} className="col-span-3" />
+              <Input id="name" value={currentPlan.name || ''} onChange={e => setCurrentPlan({...currentPlan, name: e.target.value})} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-start gap-4">
               <Label htmlFor="description" className="text-right pt-2">Descrição</Label>
-              <Textarea id="description" value={currentPlan.description} onChange={e => setCurrentPlan({...currentPlan, description: e.target.value})} className="col-span-3" />
+              <Textarea id="description" value={currentPlan.description || ''} onChange={e => setCurrentPlan({...currentPlan, description: e.target.value})} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="installments" className="text-right">Nº de Parcelas</Label>

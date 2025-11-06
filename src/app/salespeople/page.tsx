@@ -119,11 +119,11 @@ export default function SalespeoplePage() {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Nome</Label>
-              <Input id="name" value={currentSalesperson.name} onChange={e => setCurrentSalesperson({...currentSalesperson, name: e.target.value})} className="col-span-3" />
+              <Input id="name" value={currentSalesperson.name || ''} onChange={e => setCurrentSalesperson({...currentSalesperson, name: e.target.value})} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="whatsapp" className="text-right">WhatsApp</Label>
-              <Input id="whatsapp" placeholder="+5511999999999" value={currentSalesperson.whatsapp} onChange={e => setCurrentSalesperson({...currentSalesperson, whatsapp: e.target.value})} className="col-span-3" />
+              <Input id="whatsapp" placeholder="+5511999999999" value={currentSalesperson.whatsapp || ''} onChange={e => setCurrentSalesperson({...currentSalesperson, whatsapp: e.target.value})} className="col-span-3" />
             </div>
           </div>
           <DialogFooter>

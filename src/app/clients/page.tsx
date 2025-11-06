@@ -122,19 +122,19 @@ export default function ClientsPage() {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Nome</Label>
-              <Input id="name" value={currentClient.name} onChange={e => setCurrentClient({...currentClient, name: e.target.value})} className="col-span-3" />
+              <Input id="name" value={currentClient.name || ''} onChange={e => setCurrentClient({...currentClient, name: e.target.value})} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">Email</Label>
-              <Input id="email" type="email" value={currentClient.email} onChange={e => setCurrentClient({...currentClient, email: e.target.value})} className="col-span-3" />
+              <Input id="email" type="email" value={currentClient.email || ''} onChange={e => setCurrentClient({...currentClient, email: e.target.value})} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phone" className="text-right">Telefone</Label>
-              <Input id="phone" value={currentClient.phone} onChange={e => setCurrentClient({...currentClient, phone: e.target.value})} className="col-span-3" />
+              <Input id="phone" value={currentClient.phone || ''} onChange={e => setCurrentClient({...currentClient, phone: e.target.value})} className="col-span-3" />
             </div>
              <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="address" className="text-right">Endereço</Label>
-              <Input id="address" value={currentClient.address} onChange={e => setCurrentClient({...currentClient, address: e.target.value})} className="col-span-3" />
+              <Input id="address" value={currentClient.address || ''} onChange={e => setCurrentClient({...currentClient, address: e.target.value})} className="col-span-3" />
             </div>
           </div>
           <DialogFooter>
@@ -148,5 +148,3 @@ export default function ClientsPage() {
     </div>
   );
 }
-
-    

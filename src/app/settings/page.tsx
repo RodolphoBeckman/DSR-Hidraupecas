@@ -246,6 +246,7 @@ export default function SettingsPage() {
             name: String(row.name),
             email: String(row.email),
             phone: String(row.phone),
+            address: String(row.address || ''),
           };
         }).filter(Boolean);
         
@@ -305,11 +306,11 @@ export default function SettingsPage() {
             <div className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="userName">Nome do Operador</Label>
-                    <Input id="userName" name="name" value={userInfo.name ?? ''} onChange={handleUserInfoChange} placeholder="Nome do Operador" />
+                    <Input id="userName" name="name" value={userInfo.name || ''} onChange={handleUserInfoChange} placeholder="Nome do Operador" />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="userEmail">Email</Label>
-                    <Input id="userEmail" name="email" type="email" value={userInfo.email ?? ''} onChange={handleUserInfoChange} placeholder="email@dominio.com" />
+                    <Input id="userEmail" name="email" type="email" value={userInfo.email || ''} onChange={handleUserInfoChange} placeholder="email@dominio.com" />
                 </div>
             </div>
 
@@ -397,7 +398,7 @@ export default function SettingsPage() {
                 <input type="file" ref={importClientsFileRef} className="hidden" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={handleImportClientsFromFile} />
             </div>
             <p className="text-xs text-muted-foreground">
-              Ao importar, todos os dados atuais serão substituídos. Recomenda-se fazer um backup (exportar) antes de importar. A importação de clientes adicionará novos clientes à lista existente. O arquivo CSV deve conter as colunas: 'name', 'email', 'phone'.
+              Ao importar, todos os dados atuais serão substituídos. Recomenda-se fazer um backup (exportar) antes de importar. A importação de clientes adicionará novos clientes à lista existente. O arquivo CSV deve conter as colunas: 'name', 'email', 'phone', e opcionalmente 'address'.
             </p>
         </CardContent>
       </Card>
@@ -413,19 +414,19 @@ export default function SettingsPage() {
             <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="companyName">Nome da Empresa</Label>
-                    <Input id="companyName" name="name" value={companyInfo.name ?? ''} onChange={handleCompanyInfoChange} placeholder="Sua Empresa LTDA" />
+                    <Input id="companyName" name="name" value={companyInfo.name || ''} onChange={handleCompanyInfoChange} placeholder="Sua Empresa LTDA" />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="companyAddress">Endereço</Label>
-                    <Input id="companyAddress" name="address" value={companyInfo.address ?? ''} onChange={handleCompanyInfoChange} placeholder="Rua Exemplo, 123, Sala 100" />
+                    <Input id="companyAddress" name="address" value={companyInfo.address || ''} onChange={handleCompanyInfoChange} placeholder="Rua Exemplo, 123, Sala 100" />
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="companyCity">Cidade, Estado, CEP</Label>
-                    <Input id="companyCity" name="cityStateZip" value={companyInfo.cityStateZip ?? ''} onChange={handleCompanyInfoChange} placeholder="Cidade, Estado, 12345-678" />
+                    <Input id="companyCity" name="cityStateZip" value={companyInfo.cityStateZip || ''} onChange={handleCompanyInfoChange} placeholder="Cidade, Estado, 12345-678" />
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="companyEmail">Email de Contato</Label>
-                    <Input id="companyEmail" name="email" type="email" value={companyInfo.email ?? ''} onChange={handleCompanyInfoChange} placeholder="contato@suaempresa.com" />
+                    <Input id="companyEmail" name="email" type="email" value={companyInfo.email || ''} onChange={handleCompanyInfoChange} placeholder="contato@suaempresa.com" />
                 </div>
             </div>
         </CardContent>
