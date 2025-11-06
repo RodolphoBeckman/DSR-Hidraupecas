@@ -3,6 +3,7 @@ export type Client = {
   name: string;
   email: string;
   phone: string;
+  address: string;
 };
 
 export type Salesperson = {
@@ -21,7 +22,7 @@ export type PaymentPlan = {
 export type ServiceItem = {
   id: string;
   description: string;
-  value: number;
+  value?: number;
 };
 
 export type Budget = {
@@ -29,6 +30,7 @@ export type Budget = {
   client: Client;
   salesperson: Salesperson;
   items: ServiceItem[];
+  budgetType: 'items' | 'group';
   paymentPlan?: PaymentPlan;
   installmentsCount?: number;
   discount?: number;
@@ -57,3 +59,5 @@ export type AppSettings = {
   backgroundImage: string | null;
   userInfo: UserInfo | null;
 };
+
+    

@@ -23,7 +23,7 @@ import type { Client } from '@/lib/definitions';
 import PageHeader from '@/components/page-header';
 import { useMounted } from '@/hooks/use-mounted';
 
-const emptyClient: Client = { id: '', name: '', email: '', phone: '' };
+const emptyClient: Client = { id: '', name: '', email: '', phone: '', address: '' };
 
 export default function ClientsPage() {
   const { toast } = useToast();
@@ -86,10 +86,13 @@ export default function ClientsPage() {
           <div className="space-y-4">
             {clients.length > 0 ? (
               clients.map(client => (
-                <div key={client.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary">
+                <div key={client.id} className="flex items-start justify-between p-3 rounded-lg bg-secondary">
                   <div className="font-medium">
                     <p className="text-base text-secondary-foreground">{client.name}</p>
-                    <p className="text-sm text-muted-foreground">{client.email} - {client.phone}</p>
+                    <div className="text-sm text-muted-foreground space-y-1">
+                        <p>{client.email} - {client.phone}</p>
+                        <p>{client.address}</p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(client)}>
@@ -129,6 +132,10 @@ export default function ClientsPage() {
               <Label htmlFor="phone" className="text-right">Telefone</Label>
               <Input id="phone" value={currentClient.phone} onChange={e => setCurrentClient({...currentClient, phone: e.target.value})} className="col-span-3" />
             </div>
+             <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="address" className="text-right">Endereço</Label>
+              <Input id="address" value={currentClient.address} onChange={e => setCurrentClient({...currentClient, address: e.target.value})} className="col-span-3" />
+            </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
@@ -141,3 +148,5 @@ export default function ClientsPage() {
     </div>
   );
 }
+
+    

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { PlusCircle, Trash2, FileText, Share2, TicketPercent } from 'lucide-react';
+import { PlusCircle, Trash2, FileText, Share2, TicketPercent, DollarSign } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
@@ -17,6 +17,7 @@ import type { Client, Salesperson, PaymentPlan, ServiceItem, Budget } from '@/li
 import PageHeader from '@/components/page-header';
 import { useMounted } from '@/hooks/use-mounted';
 import { Combobox } from '@/components/ui/combobox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 
 export default function BudgetForm() {
@@ -41,6 +42,8 @@ export default function BudgetForm() {
   const [newItemValue, setNewItemValue] = useState('');
   const [discount, setDiscount] = useState<number>(0);
   const [status, setStatus] = useState<Budget['status']>('pendente');
+  const [budgetType, setBudgetType] = useState<Budget['budgetType']>('items');
+  const [groupTotal, setGroupTotal] = useState<number>(0);
 
 
   useEffect(() => {
@@ -51,6 +54,10 @@ export default function BudgetForm() {
         setSelectedSalespersonId(budgetToEdit.salesperson.id);
         setItems(budgetToEdit.items);
         setStatus(budgetToEdit.status);
+        setBudgetType(budgetToEdit.budgetType || 'items');
+        if (budgetToEdit.budgetType === 'group') {
+          setGroupTotal(budgetToEdit.total + (budgetToEdit.discount || 0));
+        }
         if(budgetToEdit.paymentPlan) {
             setSelectedPaymentPlanId(budgetToEdit.paymentPlan.id);
         }
@@ -64,7 +71,13 @@ export default function BudgetForm() {
     }
   }, [budgetId, budgets]);
 
-  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.value, 0), [items]);
+  const subtotal = useMemo(() => {
+    if (budgetType === 'group') {
+      return groupTotal;
+    }
+    return items.reduce((sum, item) => sum + (item.value || 0), 0);
+  }, [items, budgetType, groupTotal]);
+
   const total = useMemo(() => subtotal - discount, [subtotal, discount]);
   
   const selectedPaymentPlan = useMemo(() => {
@@ -94,18 +107,38 @@ export default function BudgetForm() {
     setDiscount(isNaN(parsedValue) ? 0 : parsedValue);
   }
 
+  const handleGroupTotalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const parsedValue = parseFloat(value.replace('.', '').replace(',', '.'));
+    setGroupTotal(isNaN(parsedValue) ? 0 : parsedValue);
+  }
+
 
   const handleAddItem = () => {
-    const value = parseFloat(newItemValue.replace('.', '').replace(',', '.'));
-    if (!newItemDesc || isNaN(value) || value <= 0) {
-      toast({
+    if (!newItemDesc) {
+       toast({
         variant: 'destructive',
-        title: 'Item Inválido',
-        description: 'Por favor, forneça uma descrição válida e um valor positivo para o serviço.',
+        title: 'Descrição Inválida',
+        description: 'Por favor, forneça uma descrição para o serviço.',
       });
       return;
     }
-    setItems([...items, { id: uuidv4(), description: newItemDesc, value }]);
+
+    if (budgetType === 'items') {
+      const value = parseFloat(newItemValue.replace('.', '').replace(',', '.'));
+      if (isNaN(value) || value <= 0) {
+        toast({
+          variant: 'destructive',
+          title: 'Valor Inválido',
+          description: 'Por favor, forneça um valor positivo para o serviço.',
+        });
+        return;
+      }
+      setItems([...items, { id: uuidv4(), description: newItemDesc, value }]);
+    } else {
+       setItems([...items, { id: uuidv4(), description: newItemDesc }]);
+    }
+
     setNewItemDesc('');
     setNewItemValue('');
   };
@@ -127,10 +160,11 @@ export default function BudgetForm() {
         return null;
     }
 
-    const budgetData = {
+    const budgetData: Omit<Budget, 'id' | 'createdAt'> = {
         client,
         salesperson,
         items,
+        budgetType,
         paymentPlan: selectedPaymentPlan,
         installmentsCount: selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 ? installmentsCount : undefined,
         discount: discount > 0 ? discount : undefined,
@@ -173,7 +207,7 @@ export default function BudgetForm() {
       const savedBudgetId = handleSaveBudget();
       if (!savedBudgetId) return;
 
-      const budget = budgets.find(b => b.id === savedBudgetId) ?? {id: savedBudgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId), status: 'pendente'};
+      const budget = budgets.find(b => b.id === savedBudgetId) ?? {id: savedBudgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId), status: 'pendente', budgetType: 'items'};
 
       if (budget?.salesperson?.whatsapp) {
           const message = encodeURIComponent(`Olá ${budget.client?.name}, aqui está seu orçamento #${budget.id} com um total de ${formatCurrency(budget.total)}. Por favor me avise se tiver alguma dúvida.`);
@@ -237,15 +271,34 @@ export default function BudgetForm() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_150px_auto] gap-2 items-end">
+              <div className="space-y-2">
+                  <Label>Tipo de Precificação</Label>
+                  <RadioGroup value={budgetType} onValueChange={(value) => setBudgetType(value as Budget['budgetType'])} className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="items" id="items" />
+                      <Label htmlFor="items">Item a item</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="group" id="group" />
+                      <Label htmlFor="group">Grupo de serviços</Label>
+                    </div>
+                  </RadioGroup>
+              </div>
+
+              <div className={cn(
+                  "grid grid-cols-1 md:grid-cols-[1fr_150px_auto] gap-2 items-end",
+                  budgetType === 'group' && "md:grid-cols-[1fr_auto]"
+              )}>
                 <div className="space-y-1">
                   <Label htmlFor="item-desc">Descrição</Label>
-                  <Input id="item-desc" value={newItemDesc} onChange={e => setNewItemDesc(e.target.value)} placeholder="Ex: Desenvolvimento de Site" />
+                  <Input id="item-desc" value={newItemDesc} onChange={e => setNewItemDesc(e.target.value)} placeholder="Ex: Manutenção de sistema hidráulico" />
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="item-value">Valor (R$)</Label>
-                  <Input id="item-value" type="text" value={newItemValue} onChange={e => setNewItemValue(e.target.value)} placeholder="Ex: 1500,00" />
-                </div>
+                {budgetType === 'items' && (
+                  <div className="space-y-1">
+                    <Label htmlFor="item-value">Valor (R$)</Label>
+                    <Input id="item-value" type="text" value={newItemValue} onChange={e => setNewItemValue(e.target.value)} placeholder="Ex: 1500,00" />
+                  </div>
+                )}
                 <Button onClick={handleAddItem} className="w-full md:w-auto">
                   <PlusCircle className="mr-2" /> Adicionar Item
                 </Button>
@@ -259,7 +312,9 @@ export default function BudgetForm() {
                     <div key={item.id} className="flex items-center justify-between p-2 rounded-md bg-secondary">
                       <span className="font-medium">{item.description}</span>
                       <div className="flex items-center gap-4">
-                        <span className="text-muted-foreground">{formatCurrency(item.value)}</span>
+                        {budgetType === 'items' && item.value && (
+                          <span className="text-muted-foreground">{formatCurrency(item.value)}</span>
+                        )}
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveItem(item.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -271,11 +326,27 @@ export default function BudgetForm() {
             </div>
           </CardContent>
            <CardFooter className="flex-col items-stretch gap-4 border-t pt-6">
+              {budgetType === 'items' ? (
+                <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
+                  <span>Subtotal</span>
+                  <span>{formatCurrency(subtotal)}</span>
+                </div>
+              ) : (
+                 <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
+                    <Label htmlFor='group-total' className="flex items-center gap-2 cursor-pointer">
+                        <DollarSign className="h-5 w-5" /> Valor Total do Grupo (R$)
+                    </Label>
+                    <Input 
+                        id="group-total" 
+                        type="text" 
+                        value={groupTotal > 0 ? groupTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''} 
+                        onChange={handleGroupTotalChange}
+                        className="max-w-[150px] text-right" 
+                        placeholder="0,00"
+                    />
+                </div>
+              )}
                <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
-                <span>Subtotal</span>
-                <span>{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
                 <Label htmlFor='discount' className="flex items-center gap-2 cursor-pointer">
                     <TicketPercent className="h-5 w-5" /> Desconto (R$)
                 </Label>
@@ -353,3 +424,5 @@ export default function BudgetForm() {
     </>
   );
 }
+
+    

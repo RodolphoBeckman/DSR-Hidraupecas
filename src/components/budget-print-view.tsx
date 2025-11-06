@@ -50,7 +50,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
   };
   
   const companyInfo = settings.companyInfo;
-  const subtotal = budget.items.reduce((acc, item) => acc + item.value, 0);
+  const subtotal = budget.items.reduce((acc, item) => acc + (item.value || 0), 0);
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -136,6 +136,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                         <p className="font-bold">{budget.client.name}</p>
                         <p>{budget.client.email}</p>
                         <p>{budget.client.phone}</p>
+                        <p>{budget.client.address}</p>
                         </div>
                     </section>
                 </header>
@@ -145,14 +146,18 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     <thead>
                         <tr className="bg-neutral-100">
                         <th className="p-3 font-semibold text-neutral-700">Descrição do Serviço</th>
-                        <th className="p-3 font-semibold text-neutral-700 text-right">Valor</th>
+                        {budget.budgetType === 'items' && (
+                          <th className="p-3 font-semibold text-neutral-700 text-right">Valor</th>
+                        )}
                         </tr>
                     </thead>
                     <tbody>
                         {budget.items.map(item => (
                         <tr key={item.id} className="border-b border-neutral-100">
                             <td className="p-3">{item.description}</td>
-                            <td className="p-3 text-right">{formatCurrency(item.value)}</td>
+                            {budget.budgetType === 'items' && item.value && (
+                                <td className="p-3 text-right">{formatCurrency(item.value)}</td>
+                            )}
                         </tr>
                         ))}
                     </tbody>
@@ -161,10 +166,12 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 
                 <section className="flex justify-end mb-8">
                     <div className="w-full md:w-1/3 space-y-2">
-                        <div className="flex justify-between py-2 border-b">
-                            <span className="font-medium text-neutral-600">Subtotal</span>
-                            <span className="text-neutral-800">{formatCurrency(subtotal)}</span>
-                        </div>
+                        {budget.budgetType === 'items' && (
+                            <div className="flex justify-between py-2 border-b">
+                                <span className="font-medium text-neutral-600">Subtotal</span>
+                                <span className="text-neutral-800">{formatCurrency(subtotal)}</span>
+                            </div>
+                        )}
                          {budget.discount && budget.discount > 0 && (
                              <div className="flex justify-between py-2 border-b text-red-600">
                                 <span className="font-medium">Desconto</span>
@@ -228,3 +235,5 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
     </div>
   );
 };
+
+    
