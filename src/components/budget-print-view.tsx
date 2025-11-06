@@ -49,10 +49,9 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
   };
   
   const companyInfo = settings.companyInfo;
-  const subtotal = budget.items.reduce((acc, item) => acc + (item.value || 0), 0);
-  const totalBruto = budget.budgetType === 'group'
+  const subtotal = budget.budgetType === 'group'
     ? budget.total + (budget.discount || 0)
-    : subtotal;
+    : budget.items.reduce((acc, item) => acc + (item.value || 0), 0);
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -177,7 +176,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     <div className="w-2/3 space-y-0 text-[9px]">
                         <div className="flex justify-between py-0.5 border-b">
                           <span className="font-medium text-neutral-600">Subtotal</span>
-                          <span className="text-neutral-800">{formatCurrency(totalBruto)}</span>
+                          <span className="text-neutral-800">{formatCurrency(subtotal)}</span>
                         </div>
                         {budget.discount && budget.discount > 0 && (
                              <div className="flex justify-between py-0.5 border-b text-red-600">
