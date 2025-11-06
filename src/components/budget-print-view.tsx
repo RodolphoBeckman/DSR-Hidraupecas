@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useRef } from 'react';
@@ -44,14 +43,13 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
     }
   };
 
-
   const handleBack = () => {
     router.back();
   };
   
   const companyInfo = settings.companyInfo;
   const subtotal = budget.budgetType === 'group' 
-    ? budget.total + (budget.discount || 0) 
+    ? budget.total + (budget.discount || 0)
     : budget.items.reduce((acc, item) => acc + (item.value || 0), 0);
 
   return (
@@ -98,7 +96,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
       
       <div className="print-container p-4 sm:p-8">
         <div ref={printAreaRef} className="max-w-4xl mx-auto shadow-lg">
-            <div className="bg-white text-black font-sans print-area text-[10px]">
+            <div className="bg-white text-black font-sans print-area text-[9px] p-2">
             
             <div className="relative h-20 w-full text-white">
                 <Image
@@ -130,12 +128,12 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 </div>
             </div>
             
-            <div className="p-3">
+            <div className="p-1">
                 <header className="pb-1 mb-1">
                     <section>
-                        <h2 className="text-[9px] font-semibold text-neutral-500 uppercase tracking-wider mb-0.5">Orçamento para</h2>
-                        <div className="text-neutral-800 text-[9px] leading-tight">
-                            <p className="font-bold text-[10px]">{budget.client.name}</p>
+                        <h2 className="text-[8px] font-semibold text-neutral-500 uppercase tracking-wider mb-0.5">Orçamento para</h2>
+                        <div className="text-neutral-800 text-[8px] leading-tight">
+                            <p className="font-bold text-[9px]">{budget.client.name}</p>
                             <p>{budget.client.email}</p>
                             <p>{budget.client.phone}</p>
                             <p>{budget.client.address}</p>
@@ -144,12 +142,12 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 </header>
                 
                 <section className="mb-1">
-                    <table className="w-full text-left text-[9px]">
+                    <table className="w-full text-left text-[8px]">
                     <thead>
                         <tr className="bg-neutral-100">
                         <th className="p-1 font-semibold text-neutral-700">Descrição do Serviço</th>
                         {budget.budgetType === 'items' && (
-                          <th className="p-1 font-semibold text-neutral-700 text-right">Valor</th>
+                          <th className="p-1 font-semibold text-neutral-700 text-right w-[90px]">Valor</th>
                         )}
                         </tr>
                     </thead>
@@ -168,13 +166,13 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 
                 {budget.observation && (
                   <section className="mb-1">
-                    <h3 className="text-[9px] font-semibold text-neutral-500 uppercase tracking-wider mb-0.5">Observações</h3>
-                    <div className="text-neutral-700 text-[9px] whitespace-pre-wrap p-1 bg-neutral-50 rounded-sm">{budget.observation}</div>
+                    <h3 className="text-[8px] font-semibold text-neutral-500 uppercase tracking-wider mb-0.5">Observações</h3>
+                    <div className="text-neutral-700 text-[8px] whitespace-pre-wrap p-1 bg-neutral-50 rounded-sm">{budget.observation}</div>
                   </section>
                 )}
 
                 <section className="flex justify-between items-start mb-1 gap-2">
-                    <div className="w-2/3 space-y-0.5 text-xs">
+                    <div className="w-2/3 space-y-0 text-[9px]">
                          <div className="flex justify-between py-0.5 border-b">
                             <span className="font-medium text-neutral-600">Subtotal</span>
                             <span className="text-neutral-800">{formatCurrency(subtotal)}</span>
@@ -191,19 +189,19 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                                 <span className="text-neutral-800">{formatCurrency(budget.total / budget.installmentsCount)}</span>
                             </div>
                         ) : null}
-                        <div className="flex justify-between py-1 bg-primary text-primary-foreground font-bold text-sm p-1.5 rounded-md mt-1">
+                        <div className="flex justify-between py-1 bg-primary text-primary-foreground font-bold text-[10px] p-1.5 rounded-md mt-1">
                             <span>Total</span>
                             <span>{formatCurrency(budget.total)}</span>
                         </div>
                     </div>
                      {settings.pixQrCode && (
                         <div className="w-1/3 text-center flex flex-col items-center justify-center">
-                            <p className="font-semibold mb-1 text-[8px]">Escanear para Pagar com PIX</p>
+                            <p className="font-semibold mb-0.5 text-[8px]">Escanear para Pagar com PIX</p>
                             <Image
                                 src={settings.pixQrCode || qrPlaceholder.imageUrl}
                                 alt="QR Code do PIX"
-                                width={70}
-                                height={70}
+                                width={60}
+                                height={60}
                                 className="object-contain"
                                 data-ai-hint={qrPlaceholder.imageHint}
                             />
