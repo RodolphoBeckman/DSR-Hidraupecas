@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { PlusCircle, Trash2, FileText, Share2, TicketPercent, DollarSign } from 'lucide-react';
+import { PlusCircle, Trash2, FileText, Share2, TicketPercent, DollarSign, NotebookText } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import { useMounted } from '@/hooks/use-mounted';
 import { Combobox } from '@/components/ui/combobox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
 
 
 export default function BudgetForm() {
@@ -51,6 +52,7 @@ export default function BudgetForm() {
   
   const [groupTotal, setGroupTotal] = useState<number>(0);
   const [groupTotalInput, setGroupTotalInput] = useState<string>('');
+  const [observation, setObservation] = useState<string>('');
 
 
   useEffect(() => {
@@ -62,6 +64,7 @@ export default function BudgetForm() {
         setItems(budgetToEdit.items);
         setStatus(budgetToEdit.status);
         setBudgetType(budgetToEdit.budgetType || 'items');
+        setObservation(budgetToEdit.observation || '');
         
         if (budgetToEdit.budgetType === 'group') {
           const totalValue = budgetToEdit.total + (budgetToEdit.discount || 0);
@@ -204,6 +207,7 @@ export default function BudgetForm() {
         salesperson,
         items,
         budgetType,
+        observation: observation || undefined,
         paymentPlan: selectedPaymentPlan,
         installmentsCount: selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 ? installmentsCount : undefined,
         discount: discount > 0 ? discount : undefined,
@@ -410,11 +414,24 @@ export default function BudgetForm() {
 
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Finalização</CardTitle>
-            <CardDescription>Selecione um plano de pagamento e finalize o orçamento.</CardDescription>
+            <CardTitle>Observações e Pagamento</CardTitle>
+            <CardDescription>Adicione observações e selecione um plano de pagamento.</CardDescription>
           </CardHeader>
-          <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
+          <CardContent className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+                <Label htmlFor="observation" className='flex items-center gap-2'>
+                    <NotebookText />
+                    Observações do Orçamento
+                </Label>
+                <Textarea
+                    id="observation"
+                    value={observation}
+                    onChange={(e) => setObservation(e.target.value)}
+                    placeholder="Adicione detalhes sobre o serviço, prazos, condições especiais, etc."
+                    className="h-32"
+                />
+            </div>
+              <div className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="payment-plan">Plano de Pagamento</Label>
                     <Select onValueChange={setSelectedPaymentPlanId} value={selectedPaymentPlanId}>

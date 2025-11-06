@@ -164,6 +164,13 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     </table>
                 </section>
                 
+                {budget.observation && (
+                  <section className="mb-8">
+                    <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-2">Observações</h3>
+                    <div className="text-neutral-700 text-sm whitespace-pre-wrap p-3 bg-neutral-50 rounded-md">{budget.observation}</div>
+                  </section>
+                )}
+
                 <section className="flex justify-end mb-8">
                     <div className="w-full md:w-1/3 space-y-2">
                         {budget.budgetType === 'items' && (
