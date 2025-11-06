@@ -86,28 +86,28 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
         
         <div className="print-container w-[210mm] min-h-[297mm] mx-auto bg-white shadow-lg font-sans text-xs">
             {/* Cabeçalho */}
-            <header className="relative w-full h-[100px] mb-8">
+            <header className="relative w-full h-[120px] mb-8">
               <div className="absolute inset-0">
                 <Image 
                   src={settings.headerImage || headerPlaceholder.imageUrl} 
                   alt="Cabeçalho do Orçamento" 
                   layout="fill" 
                   objectFit="cover"
-                  className="object-top"
+                  className="object-center"
                 />
-                <div className="absolute inset-0 bg-black/50" />
+                <div className="absolute inset-0 bg-black/60" />
               </div>
-              <div className="relative z-10 flex h-full items-end justify-between p-4 text-white">
-                <div>
-                  <h1 className="text-2xl font-bold uppercase">{settings.companyInfo?.name || 'Nome da Empresa'}</h1>
-                  <p>{settings.companyInfo?.address || 'Endereço'}</p>
-                  <p>{settings.companyInfo?.cityStateZip || 'Cidade, Estado, CEP'}</p>
-                  <p>{settings.companyInfo?.email || 'email@empresa.com'}</p>
+              <div className="relative z-10 flex h-full items-center justify-between p-4 text-white">
+                <div className="space-y-0.5">
+                  <h1 className="text-xl font-bold uppercase">{settings.companyInfo?.name || 'Nome da Empresa'}</h1>
+                  <p className="text-xs">{settings.companyInfo?.address || 'Endereço'}</p>
+                  <p className="text-xs">{settings.companyInfo?.cityStateZip || 'Cidade, Estado, CEP'}</p>
+                  <p className="text-xs">{settings.companyInfo?.email || 'email@empresa.com'}</p>
                 </div>
-                <div className="text-right">
-                  <h2 className="text-xl font-bold">ORÇAMENTO</h2>
-                  <p><span className="font-bold">Nº:</span> {budget.id}</p>
-                  <p><span className="font-bold">Data:</span> {formatDate(budget.createdAt)}</p>
+                <div className="text-right space-y-0.5">
+                  <h2 className="text-lg font-bold">ORÇAMENTO</h2>
+                  <p className="text-xs"><span className="font-bold">Nº:</span> {budget.id}</p>
+                  <p className="text-xs"><span className="font-bold">Data:</span> {formatDate(budget.createdAt)}</p>
                 </div>
               </div>
             </header>
