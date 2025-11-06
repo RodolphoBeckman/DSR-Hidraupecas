@@ -84,7 +84,7 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
             }
         `}</style>
         
-        <div className="print-container w-[210mm] min-h-[297mm] mx-auto bg-white shadow-lg font-sans text-xs">
+        <div className="print-container w-[210mm] mx-auto bg-white shadow-lg font-sans text-xs">
             {/* Cabeçalho */}
             <header className="relative w-full h-[120px] mb-8">
               <div className="absolute inset-0">
