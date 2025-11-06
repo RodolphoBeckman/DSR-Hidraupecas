@@ -23,15 +23,19 @@ export default function DashboardPage() {
     pendingBudgets,
     completedBudgets,
     completedValue,
+    grossCompletedValue,
   } = useMemo(() => {
+    const completed = budgets.filter(b => b.status === 'realizado');
+    const totalValue = completed.reduce((acc, b) => acc + b.total, 0);
+    const grossTotalValue = completed.reduce((acc, b) => acc + (b.total + (b.discount || 0)), 0);
+
     return {
       budgetCount: budgets.length,
       clientCount: clients.length,
       pendingBudgets: budgets.filter(b => b.status === 'pendente').length,
-      completedBudgets: budgets.filter(b => b.status === 'realizado').length,
-      completedValue: budgets
-        .filter(b => b.status === 'realizado')
-        .reduce((acc, b) => acc + b.total, 0),
+      completedBudgets: completed.length,
+      completedValue: totalValue,
+      grossCompletedValue: grossTotalValue,
     };
   }, [budgets, clients]);
 
@@ -105,7 +109,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{completedBudgets}</div>
-             <p className="text-xs text-muted-foreground">Faturamento de {formatCurrency(completedValue)}</p>
+             <p className="text-xs text-muted-foreground">Faturamento de {formatCurrency(completedValue)} (Bruto: {formatCurrency(grossCompletedValue)})</p>
           </CardContent>
         </Card>
         <Card>

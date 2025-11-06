@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useRef } from 'react';
@@ -38,7 +39,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
           margin:       [0,0,0,0],
           filename:     `orcamento-${budget.id}.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { useCORS: true },
+          html2canvas:  { useCORS: true, scale: 2 },
           jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
         html2pdf().from(element).set(opt).save();
@@ -51,7 +52,10 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
   };
   
   const companyInfo = settings.companyInfo;
-  const subtotal = budget.items.reduce((acc, item) => acc + (item.value || 0), 0);
+  const subtotal = budget.budgetType === 'group' 
+    ? budget.total + (budget.discount || 0) 
+    : budget.items.reduce((acc, item) => acc + (item.value || 0), 0);
+
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -174,12 +178,10 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
 
                 <section className="flex justify-between items-start mb-8 gap-8">
                     <div className="w-2/3 space-y-2">
-                        {budget.budgetType === 'items' && (
-                            <div className="flex justify-between py-2 border-b">
-                                <span className="font-medium text-neutral-600">Subtotal</span>
-                                <span className="text-neutral-800">{formatCurrency(subtotal)}</span>
-                            </div>
-                        )}
+                        <div className="flex justify-between py-2 border-b">
+                            <span className="font-medium text-neutral-600">Subtotal</span>
+                            <span className="text-neutral-800">{formatCurrency(subtotal)}</span>
+                        </div>
                          {budget.discount && budget.discount > 0 && (
                              <div className="flex justify-between py-2 border-b text-red-600">
                                 <span className="font-medium">Desconto</span>
