@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
@@ -41,10 +42,15 @@ export default function BudgetForm() {
   const [items, setItems] = useState<ServiceItem[]>([]);
   const [newItemDesc, setNewItemDesc] = useState('');
   const [newItemValue, setNewItemValue] = useState('');
+  
   const [discount, setDiscount] = useState<number>(0);
+  const [discountInput, setDiscountInput] = useState<string>('');
+
   const [status, setStatus] = useState<Budget['status']>('pendente');
   const [budgetType, setBudgetType] = useState<Budget['budgetType']>('items');
+  
   const [groupTotal, setGroupTotal] = useState<number>(0);
+  const [groupTotalInput, setGroupTotalInput] = useState<string>('');
 
 
   useEffect(() => {
@@ -56,8 +62,11 @@ export default function BudgetForm() {
         setItems(budgetToEdit.items);
         setStatus(budgetToEdit.status);
         setBudgetType(budgetToEdit.budgetType || 'items');
+        
         if (budgetToEdit.budgetType === 'group') {
-          setGroupTotal(budgetToEdit.total + (budgetToEdit.discount || 0));
+          const totalValue = budgetToEdit.total + (budgetToEdit.discount || 0);
+          setGroupTotal(totalValue);
+          setGroupTotalInput(formatBRL(totalValue));
         }
         if(budgetToEdit.paymentPlan) {
             setSelectedPaymentPlanId(budgetToEdit.paymentPlan.id);
@@ -67,6 +76,7 @@ export default function BudgetForm() {
         }
         if(budgetToEdit.discount) {
             setDiscount(budgetToEdit.discount);
+            setDiscountInput(formatBRL(budgetToEdit.discount));
         }
       }
     }
@@ -101,19 +111,31 @@ export default function BudgetForm() {
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
+
+  const parseBRL = (value: string) => {
+    return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+  }
+
+  const formatBRL = (value: number) => {
+    return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
   
-  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const parsedValue = parseFloat(value.replace('.', '').replace(',', '.'));
-    setDiscount(isNaN(parsedValue) ? 0 : parsedValue);
+  const handleValueInputChange = (e: React.ChangeEvent<HTMLInputElement>, setValue: (value: number) => void, setInput: (value: string) => void) => {
+    const { value } = e.target;
+    // Allow only numbers and a single comma
+    const sanitizedValue = value.replace(/[^0-9,]/g, '');
+    const parts = sanitizedValue.split(',');
+    const finalValue = parts.length > 2 ? `${parts[0]},${parts.slice(1).join('')}` : sanitizedValue;
+    
+    setInput(finalValue);
+    setValue(parseBRL(finalValue));
   }
 
-  const handleGroupTotalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const parsedValue = parseFloat(value.replace('.', '').replace(',', '.'));
-    setGroupTotal(isNaN(parsedValue) ? 0 : parsedValue);
+  const handleValueInputBlur = (e: React.ChangeEvent<HTMLInputElement>, setValue: (value: number) => void, setInput: (value: string) => void) => {
+      const numericValue = parseBRL(e.target.value);
+      setValue(numericValue);
+      setInput(numericValue > 0 ? formatBRL(numericValue) : '');
   }
-
 
   const handleAddItem = () => {
     if (!newItemDesc) {
@@ -126,8 +148,8 @@ export default function BudgetForm() {
     }
 
     if (budgetType === 'items') {
-      const value = parseFloat(newItemValue.replace('.', '').replace(',', '.'));
-      if (isNaN(value) || value <= 0) {
+      const value = parseBRL(newItemValue);
+      if (value <= 0) {
         toast({
           variant: 'destructive',
           title: 'Valor Inválido',
@@ -225,7 +247,7 @@ export default function BudgetForm() {
       const savedBudgetId = handleSaveBudget();
       if (!savedBudgetId) return;
 
-      const budget = budgets.find(b => b.id === savedBudgetId) ?? {id: savedBudgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId), status: 'pendente', budgetType: 'items'};
+      const budget = budgets.find(b => b.id === savedBudgetId) ?? {id: savedBudgetId, salesperson: salespeople.find(s => s.id === selectedSalespersonId), total: total, client: clients.find(c => c.id === selectedClientId), status: 'pendente', budgetType: 'items', items: []};
 
       if (budget?.salesperson?.whatsapp) {
           const message = encodeURIComponent(`Olá ${budget.client?.name}, aqui está seu orçamento #${budget.id} com um total de ${formatCurrency(budget.total)}. Por favor me avise se tiver alguma dúvida.`);
@@ -314,7 +336,7 @@ export default function BudgetForm() {
                 {budgetType === 'items' && (
                   <div className="space-y-1">
                     <Label htmlFor="item-value">Valor (R$)</Label>
-                    <Input id="item-value" type="text" value={newItemValue} onChange={e => setNewItemValue(e.target.value)} placeholder="Ex: 1500,00" />
+                    <Input id="item-value" type="text" value={newItemValue} onChange={e => setNewItemValue(e.target.value)} placeholder="Ex: 1.500,00" />
                   </div>
                 )}
                 <Button onClick={handleAddItem} className="w-full md:w-auto">
@@ -357,8 +379,9 @@ export default function BudgetForm() {
                     <Input 
                         id="group-total" 
                         type="text" 
-                        value={groupTotal > 0 ? groupTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''} 
-                        onChange={handleGroupTotalChange}
+                        value={groupTotalInput} 
+                        onChange={(e) => handleValueInputChange(e, setGroupTotal, setGroupTotalInput)}
+                        onBlur={(e) => handleValueInputBlur(e, setGroupTotal, setGroupTotalInput)}
                         className="max-w-[150px] text-right" 
                         placeholder="0,00"
                     />
@@ -371,8 +394,9 @@ export default function BudgetForm() {
                 <Input 
                     id="discount" 
                     type="text" 
-                    value={discount > 0 ? discount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''} 
-                    onChange={handleDiscountChange}
+                    value={discountInput} 
+                    onChange={(e) => handleValueInputChange(e, setDiscount, setDiscountInput)}
+                    onBlur={(e) => handleValueInputBlur(e, setDiscount, setDiscountInput)}
                     className="max-w-[120px] text-right" 
                     placeholder="0,00"
                 />
@@ -442,3 +466,5 @@ export default function BudgetForm() {
     </>
   );
 }
+
+    
