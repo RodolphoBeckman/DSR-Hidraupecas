@@ -148,15 +148,31 @@ export default function BudgetForm() {
     setItems(items.filter(item => item.id !== id));
   };
   
+  const getNextBudgetId = () => {
+    const dsrBudgets = budgets.filter(b => b.id.startsWith('DSR-'));
+    if (dsrBudgets.length === 0) {
+        return 'DSR-0001';
+    }
+    const highestId = dsrBudgets.reduce((max, b) => {
+        const num = parseInt(b.id.split('-')[1] || '0', 10);
+        return num > max ? num : max;
+    }, 0);
+    return `DSR-${String(highestId + 1).padStart(4, '0')}`;
+  };
+
   const handleSaveBudget = () => {
     const client = clients.find(c => c.id === selectedClientId);
     const salesperson = salespeople.find(s => s.id === selectedSalespersonId);
     
-    if (!client || !salesperson || items.length === 0) {
+    if (!client || !salesperson || (budgetType === 'group' && groupTotal <= 0) || (budgetType === 'items' && items.length === 0)) {
+        let description = 'Por favor, selecione um cliente, um vendedor e adicione pelo menos um item de serviço.';
+        if (budgetType === 'group' && groupTotal <= 0) {
+          description = 'Por favor, insira um valor total para o grupo de serviços.';
+        }
         toast({
             variant: 'destructive',
             title: 'Informações Incompletas',
-            description: 'Por favor, selecione um cliente, um vendedor e adicione pelo menos um item de serviço.',
+            description,
         });
         return null;
     }
@@ -182,8 +198,9 @@ export default function BudgetForm() {
         });
         return budgetId;
     } else {
+        const newBudgetId = getNextBudgetId();
         const newBudget: Budget = {
-            id: `ORC-${new Date().getTime()}`,
+            id: newBudgetId,
             createdAt: new Date().toISOString(),
             ...budgetData,
             status: 'pendente',
@@ -425,5 +442,3 @@ export default function BudgetForm() {
     </>
   );
 }
-
-    
