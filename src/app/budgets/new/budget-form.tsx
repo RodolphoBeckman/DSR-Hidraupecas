@@ -141,7 +141,7 @@ export default function BudgetForm() {
   }
 
   const handleAddItem = () => {
-    if (!newItemDesc) {
+    if (!newItemDesc.trim()) {
        toast({
         variant: 'destructive',
         title: 'Descrição Inválida',
@@ -160,13 +160,20 @@ export default function BudgetForm() {
         });
         return;
       }
-      setItems([...items, { id: uuidv4(), description: newItemDesc, value }]);
+      setItems([...items, { id: uuidv4(), description: newItemDesc.trim(), value }]);
     } else {
-       setItems([...items, { id: uuidv4(), description: newItemDesc }]);
+       setItems([...items, { id: uuidv4(), description: newItemDesc.trim() }]);
     }
 
     setNewItemDesc('');
     setNewItemValue('');
+  };
+  
+  const handleItemDescKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleAddItem();
+    }
   };
 
   const handleRemoveItem = (id: string) => {
@@ -335,7 +342,14 @@ export default function BudgetForm() {
               )}>
                 <div className="space-y-1">
                   <Label htmlFor="item-desc">Descrição</Label>
-                  <Input id="item-desc" value={newItemDesc} onChange={e => setNewItemDesc(e.target.value)} placeholder="Ex: Manutenção de sistema hidráulico" />
+                  <Textarea 
+                    id="item-desc" 
+                    value={newItemDesc} 
+                    onChange={e => setNewItemDesc(e.target.value)} 
+                    placeholder="Ex: Manutenção de sistema hidráulico&#10;Use Shift+Enter para quebrar a linha."
+                    onKeyDown={handleItemDescKeyDown}
+                    className="min-h-[60px]"
+                    />
                 </div>
                 {budgetType === 'items' && (
                   <div className="space-y-1">
@@ -353,13 +367,13 @@ export default function BudgetForm() {
                   <p className="text-sm text-muted-foreground text-center py-4">Nenhum item adicionado ainda.</p>
                 ) : (
                   items.map((item, index) => (
-                    <div key={item.id} className="flex items-center justify-between p-2 rounded-md bg-secondary">
-                      <span className="font-medium">{item.description}</span>
+                    <div key={item.id} className="flex items-start justify-between p-2 rounded-md bg-secondary">
+                      <span className="font-medium whitespace-pre-wrap flex-1">{item.description}</span>
                       <div className="flex items-center gap-4">
                         {budgetType === 'items' && item.value && (
                           <span className="text-muted-foreground">{formatCurrency(item.value)}</span>
                         )}
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveItem(item.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive flex-shrink-0" onClick={() => handleRemoveItem(item.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

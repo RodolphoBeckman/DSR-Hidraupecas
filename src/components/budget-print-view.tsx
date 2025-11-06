@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useRef } from 'react';
@@ -154,7 +155,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     <tbody>
                         {budget.items.map(item => (
                         <tr key={item.id} className="border-b border-neutral-100">
-                            <td className="p-3">{item.description}</td>
+                            <td className="p-3 whitespace-pre-wrap">{item.description}</td>
                             {budget.budgetType === 'items' && item.value && (
                                 <td className="p-3 text-right">{formatCurrency(item.value)}</td>
                             )}
