@@ -84,108 +84,113 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
             }
         `}</style>
         
-        <div className="print-container w-[210mm] min-h-[297mm] mx-auto bg-white shadow-lg p-8 font-sans text-xs">
+        <div className="print-container w-[210mm] min-h-[297mm] mx-auto bg-white shadow-lg font-sans text-xs">
             {/* Cabeçalho */}
-            <header className="flex justify-between items-start mb-6">
-                <div className="w-1/3">
-                    {settings.headerImage ? (
-                        <Image src={settings.headerImage} alt="Logo da Empresa" width={150} height={60} className="object-contain" />
-                    ) : (
-                         <div className="w-[150px] h-[60px] bg-gray-200 flex items-center justify-center text-gray-500">
-                            Logo
-                         </div>
-                    )}
+            <header className="relative w-full h-[100px] mb-8">
+              <div className="absolute inset-0">
+                <Image 
+                  src={settings.headerImage || headerPlaceholder.imageUrl} 
+                  alt="Cabeçalho do Orçamento" 
+                  layout="fill" 
+                  objectFit="cover"
+                  className="object-top"
+                />
+                <div className="absolute inset-0 bg-black/50" />
+              </div>
+              <div className="relative z-10 flex h-full items-end justify-between p-4 text-white">
+                <div>
+                  <h1 className="text-2xl font-bold uppercase">{settings.companyInfo?.name || 'Nome da Empresa'}</h1>
+                  <p>{settings.companyInfo?.address || 'Endereço'}</p>
+                  <p>{settings.companyInfo?.cityStateZip || 'Cidade, Estado, CEP'}</p>
+                  <p>{settings.companyInfo?.email || 'email@empresa.com'}</p>
                 </div>
-                <div className="w-2/3 text-right">
-                    <h1 className="font-bold text-base uppercase">{settings.companyInfo?.name || 'Nome da Empresa'}</h1>
-                    <p>{settings.companyInfo?.address || 'Endereço da Empresa'}</p>
-                    <p>{settings.companyInfo?.cityStateZip || 'Cidade, Estado, CEP'}</p>
-                    <p>{settings.companyInfo?.email || 'email@empresa.com'}</p>
+                <div className="text-right">
+                  <h2 className="text-xl font-bold">ORÇAMENTO</h2>
+                  <p><span className="font-bold">Nº:</span> {budget.id}</p>
+                  <p><span className="font-bold">Data:</span> {formatDate(budget.createdAt)}</p>
                 </div>
+              </div>
             </header>
 
-            {/* Informações do Orçamento */}
-            <section className="mb-6">
-                <div className="flex justify-between items-start">
-                    <h2 className="text-xl font-bold">ORÇAMENTO</h2>
-                    <div className="text-right">
-                        <p><span className="font-bold">Nº:</span> {budget.id}</p>
-                        <p><span className="font-bold">Data:</span> {formatDate(budget.createdAt)}</p>
+            {/* Informações do Cliente e Vendedor */}
+            <section className="px-8">
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="border p-3 rounded-md">
+                        <h3 className="font-bold mb-1">CLIENTE:</h3>
+                        <p className="font-semibold">{budget.client.name}</p>
+                        <p>{budget.client.phone}</p>
+                        {budget.client.email && <p>{budget.client.email}</p>}
+                        {budget.client.address && <p>{budget.client.address}</p>}
+                    </div>
+                    <div className="border p-3 rounded-md">
+                        <h3 className="font-bold mb-1">VENDEDOR:</h3>
+                        <p>{budget.salesperson.name}</p>
+                        <p>WhatsApp: {budget.salesperson.whatsapp}</p>
                     </div>
                 </div>
             </section>
-            
-            <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="border p-3 rounded-md">
-                    <h3 className="font-bold mb-1">CLIENTE:</h3>
-                    <p className="font-semibold">{budget.client.name}</p>
-                    <p>{budget.client.phone}</p>
-                    {budget.client.email && <p>{budget.client.email}</p>}
-                    {budget.client.address && <p>{budget.client.address}</p>}
-                </div>
-                 <div className="border p-3 rounded-md">
-                    <h3 className="font-bold mb-1">VENDEDOR:</h3>
-                    <p>{budget.salesperson.name}</p>
-                    <p>WhatsApp: {budget.salesperson.whatsapp}</p>
-                </div>
-            </div>
 
-            {/* Itens do Serviço */}
-            <section className="mb-4">
-                <h3 className="text-sm font-bold mb-2 border-b pb-1">SERVIÇOS</h3>
-                <table className="w-full">
-                    <thead>
-                        <tr>
-                            <th className="text-left py-1 font-bold uppercase">DESCRIÇÃO</th>
-                            {budget.budgetType === 'items' && <th className="text-right py-1 font-bold uppercase w-32">VALOR</th>}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {budget.items.map(item => (
-                            <tr key={item.id} className="border-b">
-                                <td className="py-1.5 pr-2 whitespace-pre-wrap align-top">{item.description}</td>
-                                {budget.budgetType === 'items' && <td className="text-right py-1.5 align-top">{formatCurrency(item.value)}</td>}
+            {/* Corpo do Orçamento */}
+            <div className="flex-grow px-8">
+                {/* Itens do Serviço */}
+                <section className="mb-4">
+                    <h3 className="text-sm font-bold mb-2 border-b pb-1">SERVIÇOS</h3>
+                    <table className="w-full">
+                        <thead>
+                            <tr>
+                                <th className="text-left py-1 font-bold uppercase">DESCRIÇÃO</th>
+                                {budget.budgetType === 'items' && <th className="text-right py-1 font-bold uppercase w-32">VALOR</th>}
                             </tr>
-                        ))}
-                         {budget.budgetType === 'group' && (
-                             <tr>
-                                <td className="pt-2 italic text-gray-500" colSpan={1}>
-                                    Valor total referente ao grupo de serviços descritos acima.
-                                </td>
-                            </tr>
-                         )}
-                    </tbody>
-                </table>
-            </section>
-            
-            {/* Observações */}
-            {budget.observation && (
-                 <section className="mb-4 text-xs">
-                    <h3 className="font-bold">OBSERVAÇÕES:</h3>
-                    <p className="whitespace-pre-wrap">{budget.observation}</p>
+                        </thead>
+                        <tbody>
+                            {budget.items.map(item => (
+                                <tr key={item.id} className="border-b">
+                                    <td className="py-1.5 pr-2 whitespace-pre-wrap align-top">{item.description}</td>
+                                    {budget.budgetType === 'items' && <td className="text-right py-1.5 align-top">{formatCurrency(item.value)}</td>}
+                                </tr>
+                            ))}
+                            {budget.budgetType === 'group' && (
+                                <tr>
+                                    <td className="pt-2 italic text-gray-500" colSpan={1}>
+                                        Valor total referente ao grupo de serviços descritos acima.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </section>
-            )}
-            
-            <div className="flex justify-end mb-6">
-                <div className="w-2/5 space-y-1">
-                    <div className="flex justify-between">
-                        <span>Subtotal:</span>
-                        <span>{formatCurrency(subtotal)}</span>
-                    </div>
-                    {budget.discount && budget.discount > 0 && (
+                
+                {/* Observações */}
+                {budget.observation && (
+                    <section className="mb-4 text-xs">
+                        <h3 className="font-bold">OBSERVAÇÕES:</h3>
+                        <p className="whitespace-pre-wrap">{budget.observation}</p>
+                    </section>
+                )}
+                
+                {/* Totais */}
+                <div className="flex justify-end mb-6">
+                    <div className="w-2/5 space-y-1">
                         <div className="flex justify-between">
-                            <span>Desconto:</span>
-                            <span className="text-red-600">-{formatCurrency(budget.discount)}</span>
+                            <span>Subtotal:</span>
+                            <span>{formatCurrency(subtotal)}</span>
                         </div>
-                    )}
-                    <div className="flex justify-between text-base font-bold border-t pt-1 mt-1">
-                        <span>TOTAL:</span>
-                        <span>{formatCurrency(budget.total)}</span>
+                        {budget.discount && budget.discount > 0 && (
+                            <div className="flex justify-between">
+                                <span>Desconto:</span>
+                                <span className="text-red-600">-{formatCurrency(budget.discount)}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between text-base font-bold border-t pt-1 mt-1">
+                            <span>TOTAL:</span>
+                            <span>{formatCurrency(budget.total)}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="border-t-2 border-black pt-4 mt-auto">
+            {/* Rodapé */}
+            <footer className="border-t-2 border-black pt-4 mt-auto px-8 pb-8">
               <div className="grid grid-cols-2 gap-8">
                  <div>
                     {budget.paymentPlan && (
@@ -209,10 +214,8 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
                     </div>
                 )}
               </div>
-            </div>
+            </footer>
         </div>
      </div>
   );
 };
-
-    
