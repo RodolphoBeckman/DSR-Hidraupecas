@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useRef } from 'react';
@@ -25,7 +23,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
 
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  }
+  };
 
   const handlePrint = () => {
     window.print();
@@ -39,7 +37,7 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
           margin:       [0,0,0,0],
           filename:     `orcamento-${budget.id}.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { useCORS: true, scale: 2 },
+          html2canvas:  { useCORS: true, scale: 1 },
           jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
         html2pdf().from(element).set(opt).save();
@@ -101,9 +99,9 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
       
       <div className="print-container p-4 sm:p-8">
         <div ref={printAreaRef} className="max-w-4xl mx-auto shadow-lg">
-            <div className="bg-white text-black font-sans print-area">
+            <div className="bg-white text-black font-sans print-area text-xs">
             
-            <div className="relative h-48 w-full text-white">
+            <div className="relative h-24 w-full text-white">
                 <Image
                     src={settings.headerImage || headerPlaceholder.imageUrl}
                     alt="Cabeçalho do Orçamento"
@@ -111,12 +109,12 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     className="object-cover"
                     data-ai-hint={headerPlaceholder.imageHint}
                 />
-                 <div className="absolute inset-0 bg-black/60 flex flex-col justify-between p-4 z-10">
+                 <div className="absolute inset-0 bg-black/60 flex flex-col justify-between p-3 z-10">
                     <div className="flex justify-between items-start gap-4">
                         <div style={{ flexShrink: 0 }}>
                             <Logo variant="white" />
                             {companyInfo && (
-                                <div className="text-sm leading-none space-y-0 mt-2">
+                                <div className="text-[9px] leading-tight space-y-0 mt-1">
                                     <p>{companyInfo.name || 'Sua Empresa'}</p>
                                     <p>{companyInfo.address || 'Rua Exemplo, 123, Sala 100'}</p>
                                     <p>{companyInfo.cityStateZip || 'Cidade, Estado, 12345-678'}</p>
@@ -125,20 +123,20 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                             )}
                         </div>
                          <div className="text-right flex-shrink-0">
-                            <h1 className="text-4xl font-bold text-white mb-2">ORÇAMENTO</h1>
-                            <p className="font-semibold text-lg"># {budget.id}</p>
-                            <p>Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
+                            <h1 className="text-2xl font-bold text-white mb-1">ORÇAMENTO</h1>
+                            <p className="font-semibold text-sm"># {budget.id}</p>
+                            <p className="text-[10px]">Data: {new Date(budget.createdAt).toLocaleDateString('pt-BR')}</p>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div className="p-10">
-                <header className="flex justify-between items-start pb-6 mb-8">
+            <div className="p-4">
+                <header className="pb-2 mb-2">
                     <section>
-                        <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-3">Orçamento para</h2>
-                        <div className="text-neutral-800">
-                        <p className="font-bold">{budget.client.name}</p>
+                        <h2 className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider mb-1">Orçamento para</h2>
+                        <div className="text-neutral-800 text-[10px] leading-snug">
+                        <p className="font-bold text-xs">{budget.client.name}</p>
                         <p>{budget.client.email}</p>
                         <p>{budget.client.phone}</p>
                         <p>{budget.client.address}</p>
@@ -146,22 +144,22 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     </section>
                 </header>
                 
-                <section className="mb-8">
-                    <table className="w-full text-left">
+                <section className="mb-2">
+                    <table className="w-full text-left text-[10px]">
                     <thead>
                         <tr className="bg-neutral-100">
-                        <th className="p-3 font-semibold text-neutral-700">Descrição do Serviço</th>
+                        <th className="p-1 font-semibold text-neutral-700">Descrição do Serviço</th>
                         {budget.budgetType === 'items' && (
-                          <th className="p-3 font-semibold text-neutral-700 text-right">Valor</th>
+                          <th className="p-1 font-semibold text-neutral-700 text-right">Valor</th>
                         )}
                         </tr>
                     </thead>
                     <tbody>
                         {budget.items.map(item => (
                         <tr key={item.id} className="border-b border-neutral-100">
-                            <td className="p-3 whitespace-pre-wrap">{item.description}</td>
+                            <td className="p-1 whitespace-pre-wrap">{item.description}</td>
                             {budget.budgetType === 'items' && item.value && (
-                                <td className="p-3 text-right">{formatCurrency(item.value)}</td>
+                                <td className="p-1 text-right">{formatCurrency(item.value)}</td>
                             )}
                         </tr>
                         ))}
@@ -170,43 +168,43 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                 </section>
                 
                 {budget.observation && (
-                  <section className="mb-8">
-                    <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-2">Observações</h3>
-                    <div className="text-neutral-700 text-sm whitespace-pre-wrap p-3 bg-neutral-50 rounded-md">{budget.observation}</div>
+                  <section className="mb-2">
+                    <h3 className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider mb-1">Observações</h3>
+                    <div className="text-neutral-700 text-[10px] whitespace-pre-wrap p-1 bg-neutral-50 rounded-sm">{budget.observation}</div>
                   </section>
                 )}
 
-                <section className="flex justify-between items-start mb-8 gap-8">
-                    <div className="w-2/3 space-y-2">
-                        <div className="flex justify-between py-2 border-b">
+                <section className="flex justify-between items-start mb-2 gap-4">
+                    <div className="w-2/3 space-y-0.5 text-xs">
+                        <div className="flex justify-between py-0.5 border-b">
                             <span className="font-medium text-neutral-600">Subtotal</span>
                             <span className="text-neutral-800">{formatCurrency(subtotal)}</span>
                         </div>
                          {budget.discount && budget.discount > 0 && (
-                             <div className="flex justify-between py-2 border-b text-red-600">
+                             <div className="flex justify-between py-0.5 border-b text-red-600">
                                 <span className="font-medium">Desconto</span>
                                 <span>- {formatCurrency(budget.discount)}</span>
                             </div>
                         )}
-                        {budget.installmentsCount && budget.installmentsCount > 1 ? (
-                            <div className="flex justify-between py-2 border-b">
+                        {budget.installmentsCount && budget.installmentsCount > 1 && (
+                            <div className="flex justify-between py-0.5 border-b">
                                 <span className="font-medium text-neutral-600">{budget.installmentsCount}x</span>
                                 <span className="text-neutral-800">{formatCurrency(budget.total / budget.installmentsCount)}</span>
                             </div>
                         ) : null}
-                        <div className="flex justify-between py-3 bg-primary text-primary-foreground font-bold text-xl p-3 rounded-md mt-2">
+                        <div className="flex justify-between py-1 bg-primary text-primary-foreground font-bold text-base p-2 rounded-md mt-1">
                             <span>Total</span>
                             <span>{formatCurrency(budget.total)}</span>
                         </div>
                     </div>
                      {settings.pixQrCode && (
-                        <div className="w-1/3 text-center flex flex-col items-center justify-end">
-                            <p className="font-semibold mb-2 text-sm">Escanear para Pagar com PIX</p>
+                        <div className="w-1/3 text-center flex flex-col items-center justify-end pt-1">
+                            <p className="font-semibold mb-1 text-[9px]">Escanear para Pagar com PIX</p>
                             <Image
                                 src={settings.pixQrCode || qrPlaceholder.imageUrl}
                                 alt="QR Code do PIX"
-                                width={128}
-                                height={128}
+                                width={80}
+                                height={80}
                                 className="object-contain"
                                 data-ai-hint={qrPlaceholder.imageHint}
                             />
@@ -214,22 +212,22 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                     )}
                 </section>
 
-                <footer className="border-t-2 border-neutral-200 pt-6 mt-8">
-                  <div className="flex justify-between gap-8 text-sm text-neutral-600">
+                <footer className="border-t-2 border-neutral-200 pt-2 mt-2">
+                  <div className="flex justify-between gap-4 text-[9px] text-neutral-600">
                       {budget.paymentPlan && (
                         <div className="w-1/2">
-                          <h3 className="font-bold text-neutral-800 mb-1">Plano de Pagamento: {budget.paymentPlan.name}</h3>
-                          <p>{budget.paymentPlan.description}</p>
+                          <h3 className="font-bold text-neutral-800 mb-1 text-[10px]">Plano de Pagamento: {budget.paymentPlan.name}</h3>
+                          <p className="whitespace-pre-wrap">{budget.paymentPlan.description}</p>
                           {budget.installmentsCount && budget.installmentsCount > 1 && (
                               <p>Pagamento em {budget.installmentsCount} parcelas de {formatCurrency(budget.total/budget.installmentsCount)}.</p>
                           )}
                         </div>
                       )}
                       <div className="w-1/2">
-                        <h3 className="font-bold text-neutral-800 mb-1">Instruções de Pagamento</h3>
+                        <h3 className="font-bold text-neutral-800 mb-1 text-[10px]">Instruções de Pagamento</h3>
                         <p>Por favor, realize o pagamento via PIX utilizando o QR code.</p>
-                        <p className="mt-4">Obrigado pela sua preferência!</p>
-                        <p className="font-semibold mt-2">Vendedor: {budget.salesperson.name}</p>
+                        <p className="mt-1">Obrigado pela sua preferência!</p>
+                        <p className="font-semibold mt-1">Vendedor: {budget.salesperson.name}</p>
                       </div>
                   </div>
                 </footer>
