@@ -172,8 +172,8 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                   </section>
                 )}
 
-                <section className="flex justify-end mb-8">
-                    <div className="w-full md:w-1/3 space-y-2">
+                <section className="flex justify-between items-start mb-8 gap-8">
+                    <div className="w-2/3 space-y-2">
                         {budget.budgetType === 'items' && (
                             <div className="flex justify-between py-2 border-b">
                                 <span className="font-medium text-neutral-600">Subtotal</span>
@@ -192,43 +192,41 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
                                 <span className="text-neutral-800">{formatCurrency(budget.total / budget.installmentsCount)}</span>
                             </div>
                         ) : null}
-                        <div className="flex justify-between py-3 bg-primary text-primary-foreground font-bold text-xl p-3 rounded-md">
+                        <div className="flex justify-between py-3 bg-primary text-primary-foreground font-bold text-xl p-3 rounded-md mt-2">
                             <span>Total</span>
                             <span>{formatCurrency(budget.total)}</span>
                         </div>
                     </div>
+                     {settings.pixQrCode && (
+                        <div className="w-1/3 text-center flex flex-col items-center justify-end">
+                            <p className="font-semibold mb-2 text-sm">Escanear para Pagar com PIX</p>
+                            <Image
+                                src={settings.pixQrCode || qrPlaceholder.imageUrl}
+                                alt="QR Code do PIX"
+                                width={128}
+                                height={128}
+                                className="object-contain"
+                                data-ai-hint={qrPlaceholder.imageHint}
+                            />
+                        </div>
+                    )}
                 </section>
 
                 <footer className="border-t-2 border-neutral-200 pt-6 mt-8">
-                    <div className="flex justify-between items-start">
-                        <div className="text-sm text-neutral-600 max-w-md">
-                            {budget.paymentPlan && (
-                                <>
-                                    <h3 className="font-bold text-neutral-800 mb-2">Plano de Pagamento: {budget.paymentPlan.name}</h3>
-                                    <p className="mb-4">{budget.paymentPlan.description}</p>
-                                    {budget.installmentsCount && budget.installmentsCount > 1 && (
-                                        <p className="mb-4">Pagamento em {budget.installmentsCount} parcelas de {formatCurrency(budget.total/budget.installmentsCount)}.</p>
-                                    )}
-                                </>
-                            )}
-                            <h3 className="font-bold text-neutral-800 mb-2">Instruções de Pagamento</h3>
-                            <p>Por favor, realize o pagamento via PIX utilizando o QR code.</p>
-                            <p className="mt-4">Obrigado pela sua preferência!</p>
-                            <p className="font-semibold mt-2">Vendedor: {budget.salesperson.name}</p>
-                        </div>
-                        {settings.pixQrCode && (
-                            <div className="text-center">
-                                <p className="font-semibold mb-2">Escanear para Pagar com PIX</p>
-                                <Image
-                                    src={settings.pixQrCode || qrPlaceholder.imageUrl}
-                                    alt="QR Code do PIX"
-                                    width={128}
-                                    height={128}
-                                    className="object-contain"
-                                    data-ai-hint={qrPlaceholder.imageHint}
-                                />
+                    <div className="text-sm text-neutral-600">
+                        {budget.paymentPlan && (
+                            <div className="mb-4">
+                                <h3 className="font-bold text-neutral-800 mb-1">Plano de Pagamento: {budget.paymentPlan.name}</h3>
+                                <p>{budget.paymentPlan.description}</p>
+                                {budget.installmentsCount && budget.installmentsCount > 1 && (
+                                    <p>Pagamento em {budget.installmentsCount} parcelas de {formatCurrency(budget.total/budget.installmentsCount)}.</p>
+                                )}
                             </div>
                         )}
+                        <h3 className="font-bold text-neutral-800 mb-1">Instruções de Pagamento</h3>
+                        <p>Por favor, realize o pagamento via PIX utilizando o QR code.</p>
+                        <p className="mt-4">Obrigado pela sua preferência!</p>
+                        <p className="font-semibold mt-2">Vendedor: {budget.salesperson.name}</p>
                     </div>
                 </footer>
             </div>
@@ -243,5 +241,3 @@ export const BudgetPrintView = ({ budget, settings }: BudgetPrintViewProps) => {
     </div>
   );
 };
-
-    
