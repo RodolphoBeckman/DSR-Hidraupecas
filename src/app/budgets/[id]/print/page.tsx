@@ -7,7 +7,7 @@ import type { Budget } from '@/lib/definitions';
 import { BudgetPrintView } from '@/components/budget-print-view';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Printer, FileText } from 'lucide-react';
 
 export default function PrintBudgetPage() {
   const params = useParams();
@@ -48,6 +48,41 @@ export default function PrintBudgetPage() {
     }
   };
 
+  const handleExportDocx = async () => {
+    const element = printRef.current;
+    if (element) {
+      const htmlToDocx = (await import('html-to-docx')).default;
+      
+      // Clona o elemento para não afetar a visualização
+      const clonedElement = element.cloneNode(true) as HTMLElement;
+      
+      // Remove a tag de estilo para não quebrar a geração do DOCX
+      const styleTag = clonedElement.querySelector('style');
+      if (styleTag) {
+        styleTag.remove();
+      }
+
+      const fileBuffer = await htmlToDocx(clonedElement.outerHTML, undefined, {
+        margins: {
+          top: 720, // 0.5 inch
+          right: 720,
+          bottom: 720,
+          left: 720,
+        },
+      });
+  
+      const blob = new Blob([fileBuffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orcamento-${budget?.id}.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -83,6 +118,10 @@ export default function PrintBudgetPage() {
             <Button onClick={handlePrint}>
                 <Printer className="mr-2 h-4 w-4" />
                 Baixar PDF
+            </Button>
+            <Button onClick={handleExportDocx} variant="outline">
+                <FileText className="mr-2 h-4 w-4" />
+                Baixar DOCX
             </Button>
         </div>
         <div ref={printRef}>
