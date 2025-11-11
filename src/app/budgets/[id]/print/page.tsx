@@ -52,7 +52,7 @@ export default function PrintBudgetPage() {
   const handleExportDocx = async () => {
     const element = printRef.current;
     if (element) {
-      const htmlToDocx = (await import('html-to-docx-ts')).default;
+      const htmlToDocx = (await import('html-to-docx')).default;
       
       const clonedElement = element.cloneNode(true) as HTMLElement;
       
@@ -70,7 +70,7 @@ export default function PrintBudgetPage() {
         },
       });
   
-      saveAs(fileBuffer, `orcamento-${budget?.id}.docx`);
+      saveAs(fileBuffer as Blob, `orcamento-${budget?.id}.docx`);
     }
   };
 
