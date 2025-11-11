@@ -6,7 +6,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Budget } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Save, FileText, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Pipette } from 'lucide-react';
+import { ArrowLeft, Printer, Save, FileText, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Pipette, Pilcrow, Minus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BudgetPrintView } from '@/components/budget-print-view';
 
@@ -89,6 +89,48 @@ export default function EditBudgetPage() {
     document.execCommand(command, false, value);
   }
 
+  const changeFontSize = (direction: 'increase' | 'decrease') => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    const parentElement = range.commonAncestorContainer.parentElement;
+
+    if (parentElement) {
+      const currentSize = window.getComputedStyle(parentElement, null).getPropertyValue('font-size');
+      let newSize = parseFloat(currentSize);
+      
+      newSize += (direction === 'increase' ? 2 : -2);
+      newSize = Math.max(8, newSize); 
+      
+      const span = document.createElement('span');
+      span.style.fontSize = `${newSize}px`;
+
+      if (range.collapsed) {
+        // No text selected, apply to future text.
+        // This is complex, for now we only support selected text
+        toast({
+          variant: "destructive",
+          title: "Seleção necessária",
+          description: "Por favor, selecione um texto para alterar o tamanho da fonte.",
+        });
+        return
+      }
+
+      const selectedText = range.extractContents();
+      span.appendChild(selectedText);
+      range.insertNode(span);
+
+      // Clean up nested spans if any
+      const innerSpans = span.querySelectorAll('span');
+      innerSpans.forEach(innerSpan => {
+        if(innerSpan.style.fontSize){
+          innerSpan.style.fontSize = `${newSize}px`;
+        }
+      });
+    }
+  };
+
   if (isLoading && !budget) {
     return (
       <div className="p-8 bg-muted min-h-screen">
@@ -133,7 +175,7 @@ export default function EditBudgetPage() {
         </div>
       </div>
       <div className="bg-background rounded-md border shadow-lg max-w-4xl mx-auto">
-        <div className="flex items-center gap-1 border-b p-2 mb-2 sticky top-16 bg-background z-10">
+        <div className="flex flex-wrap items-center gap-1 border-b p-2 sticky top-16 bg-background z-10">
             <Button variant="outline" size="sm" onClick={() => handleFormat('bold')}><Bold className="h-4 w-4" /></Button>
             <Button variant="outline" size="sm" onClick={() => handleFormat('italic')}><Italic className="h-4 w-4" /></Button>
             <Button variant="outline" size="sm" onClick={() => handleFormat('underline')}><Underline className="h-4 w-4" /></Button>
@@ -142,6 +184,8 @@ export default function EditBudgetPage() {
             <Button variant="outline" size="sm" onClick={() => handleFormat('justifyRight')}><AlignRight className="h-4 w-4" /></Button>
             <Button variant="outline" size="sm" onClick={() => handleFormat('insertUnorderedList')}><List className="h-4 w-4" /></Button>
             <Button variant="outline" size="sm" onClick={() => handleFormat('insertOrderedList')}><ListOrdered className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => changeFontSize('decrease')}><Minus className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => changeFontSize('increase')}><Plus className="h-4 w-4" /></Button>
             <Button variant="outline" size="sm" asChild className="relative">
                 <label htmlFor="color-picker" className="cursor-pointer">
                     <Pipette className="h-4 w-4" />
