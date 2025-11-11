@@ -1,9 +1,14 @@
 export type Client = {
   id: string;
-  name: string;
-  email: string;
+  type: 'pessoa_fisica' | 'pessoa_juridica';
+  name: string; // Razão Social para PJ, Nome completo para PF
+  tradeName?: string; // Nome Fantasia, opcional
+  cpfCnpj: string; // CPF ou CNPJ
+  ieRg?: string; // Inscrição Estadual ou RG
   phone: string;
-  address: string;
+  email: string;
+  address?: string;
+  observations?: string;
 };
 
 export type Salesperson = {
@@ -60,5 +65,3 @@ export type AppSettings = {
   backgroundImage: string | null;
   userInfo: UserInfo | null;
 };
-
-    

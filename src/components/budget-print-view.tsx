@@ -116,14 +116,17 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
             <section className="px-8">
                 <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="border p-3 rounded-md">
-                        <h3 className="font-bold mb-1">CLIENTE:</h3>
+                        <h3 className="font-bold mb-1 uppercase">Cliente:</h3>
                         <p className="font-semibold">{budget.client.name}</p>
-                        <p>{budget.client.phone}</p>
-                        {budget.client.email && <p>{budget.client.email}</p>}
-                        {budget.client.address && <p>{budget.client.address}</p>}
+                        {budget.client.tradeName && <p className="text-sm">{budget.client.tradeName}</p>}
+                        <p>{budget.client.type === 'pessoa_juridica' ? 'CNPJ' : 'CPF'}: {budget.client.cpfCnpj}</p>
+                        {budget.client.ieRg && <p>{budget.client.type === 'pessoa_juridica' ? 'IE' : 'RG'}: {budget.client.ieRg}</p>}
+                        <p>Tel: {budget.client.phone}</p>
+                        {budget.client.email && <p>Email: {budget.client.email}</p>}
+                        {budget.client.address && <p>End: {budget.client.address}</p>}
                     </div>
                     <div className="border p-3 rounded-md">
-                        <h3 className="font-bold mb-1">VENDEDOR:</h3>
+                        <h3 className="font-bold mb-1 uppercase">Vendedor:</h3>
                         <p>{budget.salesperson.name}</p>
                         <p>WhatsApp: {budget.salesperson.whatsapp}</p>
                     </div>

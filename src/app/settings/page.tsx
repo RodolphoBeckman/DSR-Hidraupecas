@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { Upload, Save, UserCircle, Download, UploadCloud, FileSpreadsheet } from 'lucide-react';
+import { Upload, Save, Download, UploadCloud, FileSpreadsheet } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import * as XLSX from 'xlsx';
 
@@ -235,20 +235,47 @@ export default function SettingsPage() {
         const workbook = XLSX.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const json: any[] = XLSX.utils.sheet_to_json(worksheet);
+        const json: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-        const newClients: Client[] = json.map(row => {
-          if (!row.name || !row.email || !row.phone) {
-            throw new Error('A planilha deve conter as colunas "name", "email" e "phone".');
-          }
+        if(json.length < 2) {
+            toast({ variant: 'destructive', title: 'Planilha Vazia', description: 'A planilha selecionada não contém dados de clientes.'});
+            return;
+        }
+
+        const headers = (json[0] as string[]).map(h => h.toLowerCase().trim());
+        const requiredHeaders = ['name', 'cpf/cnpj', 'phone', 'email'];
+        const missingHeaders = requiredHeaders.filter(rh => !headers.includes(rh));
+
+        if (missingHeaders.length > 0) {
+           toast({ variant: 'destructive', title: 'Cabeçalhos Ausentes', description: `Sua planilha precisa ter as colunas: ${missingHeaders.join(', ')}`});
+           return;
+        }
+
+        const nameIndex = headers.indexOf('name');
+        const cpfCnpjIndex = headers.indexOf('cpf/cnpj');
+        const phoneIndex = headers.indexOf('phone');
+        const emailIndex = headers.indexOf('email');
+        const tradeNameIndex = headers.indexOf('trade name');
+        const ieRgIndex = headers.indexOf('ie/rg');
+        const addressIndex = headers.indexOf('address');
+
+        const newClients: Client[] = json.slice(1).map(row => {
+          const cpfCnpj = String(row[cpfCnpjIndex] || '');
+          const isJuridica = cpfCnpj.replace(/\D/g, '').length === 14;
+
           return {
             id: uuidv4(),
-            name: String(row.name),
-            email: String(row.email),
-            phone: String(row.phone),
-            address: String(row.address || ''),
+            type: isJuridica ? 'pessoa_juridica' : 'pessoa_fisica',
+            name: String(row[nameIndex] || ''),
+            cpfCnpj: cpfCnpj,
+            phone: String(row[phoneIndex] || ''),
+            email: String(row[emailIndex] || ''),
+            tradeName: tradeNameIndex > -1 ? String(row[tradeNameIndex] || '') : undefined,
+            ieRg: ieRgIndex > -1 ? String(row[ieRgIndex] || '') : undefined,
+            address: addressIndex > -1 ? String(row[addressIndex] || '') : undefined,
+            observations: undefined,
           };
-        }).filter(Boolean);
+        }).filter(c => c.name && c.cpfCnpj);
         
         if (newClients.length > 0) {
           setClients(prevClients => [...prevClients, ...newClients]);
@@ -259,8 +286,8 @@ export default function SettingsPage() {
         } else {
            toast({
             variant: 'destructive',
-            title: 'Nenhum Cliente Encontrado',
-            description: 'A planilha parece estar vazia ou em um formato incorreto.',
+            title: 'Nenhum Cliente Válido Encontrado',
+            description: 'Verifique se as colunas de nome e CPF/CNPJ estão preenchidas corretamente na planilha.',
           });
         }
 
@@ -392,13 +419,14 @@ export default function SettingsPage() {
                     <UploadCloud className="mr-2" /> Importar Dados do App
                 </Button>
                  <Button onClick={() => importClientsFileRef.current?.click()} className="flex-1" variant="outline">
-                    <FileSpreadsheet className="mr-2" /> Importar Clientes (CSV)
+                    <FileSpreadsheet className="mr-2" /> Importar Clientes (XLSX/CSV)
                 </Button>
                 <input type="file" ref={importFileRef} className="hidden" accept=".json" onChange={handleImportFileChange} />
                 <input type="file" ref={importClientsFileRef} className="hidden" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={handleImportClientsFromFile} />
             </div>
             <p className="text-xs text-muted-foreground">
-              Ao importar, todos os dados atuais serão substituídos. Recomenda-se fazer um backup (exportar) antes de importar. A importação de clientes adicionará novos clientes à lista existente. O arquivo CSV deve conter as colunas: 'name', 'email', 'phone', e opcionalmente 'address'.
+              Ao importar dados do app, todos os dados atuais serão substituídos. Recomenda-se fazer um backup (exportar) antes. <br/>
+              A importação de clientes (XLSX/CSV) adicionará novos clientes à lista existente. A planilha deve conter as colunas obrigatórias: 'name', 'cpf/cnpj', 'phone', 'email'. Opcionais: 'trade name', 'ie/rg', 'address'.
             </p>
         </CardContent>
       </Card>

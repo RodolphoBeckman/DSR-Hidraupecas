@@ -48,7 +48,8 @@ export default function BudgetsPage() {
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         const clientName = budget.client.name.toLowerCase();
         const clientPhone = budget.client.phone;
-        return clientName.includes(lowerCaseSearchTerm) || clientPhone.includes(searchTerm);
+        const clientCpfCnpj = budget.client.cpfCnpj;
+        return clientName.includes(lowerCaseSearchTerm) || clientPhone.includes(searchTerm) || clientCpfCnpj.includes(searchTerm);
       })
       .filter(budget => {
         if (!dateRange?.from) return true;
@@ -126,7 +127,7 @@ export default function BudgetsPage() {
             <div className="relative flex-1 w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Pesquisar por nome ou telefone do cliente..."
+                placeholder="Pesquisar por nome, telefone ou CPF/CNPJ do cliente..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-full"
@@ -196,7 +197,7 @@ export default function BudgetsPage() {
                       <TableCell>
                         <div className="flex flex-col">
                             <span className="font-medium">{budget.client.name}</span>
-                            <span className="text-sm text-muted-foreground">{budget.client.phone}</span>
+                            <span className="text-sm text-muted-foreground">{budget.client.cpfCnpj}</span>
                         </div>
                       </TableCell>
                       <TableCell>{formatDate(budget.createdAt)}</TableCell>

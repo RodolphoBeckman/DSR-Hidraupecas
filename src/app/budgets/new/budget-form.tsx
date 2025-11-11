@@ -101,7 +101,7 @@ export default function BudgetForm() {
   const clientOptions = useMemo(() => {
     return clients.map(client => ({
         value: client.id,
-        label: `${client.name} - ${client.phone}`,
+        label: `${client.name} - ${client.cpfCnpj}`,
     }));
   }, [clients]);
 
@@ -508,5 +508,3 @@ export default function BudgetForm() {
     </>
   );
 }
-
-    
