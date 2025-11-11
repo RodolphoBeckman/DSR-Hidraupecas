@@ -6,11 +6,9 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Budget } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Save } from 'lucide-react';
+import { ArrowLeft, Printer, Save, FileText, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { budgetToHtml } from '@/lib/budget-to-html';
-import { cn } from '@/lib/utils';
-import 'react-quill/dist/quill.snow.css';
+import { BudgetPrintView } from '@/components/budget-print-view';
 
 export default function EditBudgetPage() {
   const params = useParams();
@@ -28,7 +26,9 @@ export default function EditBudgetPage() {
     if (foundBudget) {
       setBudget(foundBudget);
       const storedContent = localStorage.getItem(`budget-html-${id}`);
-      setEditableContent(storedContent || budgetToHtml(foundBudget));
+      if (storedContent) {
+        setEditableContent(storedContent);
+      }
     }
     setIsLoading(false);
   }, [id, budgets]);
@@ -38,39 +38,46 @@ export default function EditBudgetPage() {
   };
 
   const handlePrint = async () => {
-    if (editableContent) {
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.write(`
-            <html>
-                <head>
-                <title>Imprimir Orçamento ${budget?.id}</title>
-                 <style>
-                    body { font-family: sans-serif; }
-                    table { width: 100%; border-collapse: collapse; }
-                    th, td { border: 1px solid #ddd; padding: 8px; }
-                    th { background-color: #f2f2f2; }
-                 </style>
-                </head>
-                <body>
-                    ${editableContent}
-                <script>
-                    window.onload = function() {
-                        window.print();
-                        window.onafterprint = function() { window.close(); };
-                    }
-                </script>
-                </body>
-            </html>
-            `);
-            printWindow.document.close();
-        }
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      const contentToPrint = document.getElementById('printable-area')?.innerHTML;
+      if (contentToPrint) {
+        printWindow.document.write(`
+        <html>
+            <head>
+            <title>Imprimir Orçamento ${budget?.id}</title>
+              <script src="https://cdn.tailwindcss.com"></script>
+              <style>
+                body { font-family: sans-serif; }
+                .print-container {
+                  width: 210mm;
+                  margin: 0 auto;
+                  padding: 2rem;
+                }
+              </style>
+            </head>
+            <body>
+                <div class="print-container">
+                  ${contentToPrint}
+                </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    window.onafterprint = function() { window.close(); };
+                }
+            </script>
+            </body>
+        </html>
+        `);
+        printWindow.document.close();
+      }
     }
   };
   
   const handleSaveContent = () => {
-      if (budget) {
-          localStorage.setItem(`budget-html-${id}`, editableContent);
+      const currentContent = document.getElementById('printable-area')?.innerHTML;
+      if (budget && currentContent) {
+          localStorage.setItem(`budget-html-${id}`, currentContent);
           toast({
               title: "Conteúdo Salvo",
               description: "As alterações no orçamento foram salvas localmente."
@@ -78,15 +85,15 @@ export default function EditBudgetPage() {
       }
   }
 
-  const handleFormat = (command: string) => {
-    document.execCommand(command, false);
+  const handleFormat = (command: string, value: string | null = null) => {
+    document.execCommand(command, false, value);
   }
 
-  if (isLoading) {
+  if (isLoading && !budget) {
     return (
       <div className="p-8 bg-muted min-h-screen">
         <Skeleton className="h-12 w-1/2 mb-8" />
-        <Skeleton className="h-[1000px] w-full max-w-[800px] mx-auto" />
+        <Skeleton className="h-[1000px] w-full max-w-4xl mx-auto" />
       </div>
     );
   }
@@ -125,17 +132,24 @@ export default function EditBudgetPage() {
             </Button>
         </div>
       </div>
-      <div className="bg-background rounded-md border p-2">
-        <div className="flex items-center gap-2 border-b p-2 mb-2">
-            <Button variant="outline" size="sm" onClick={() => handleFormat('bold')}><b>B</b></Button>
-            <Button variant="outline" size="sm" onClick={() => handleFormat('italic')}><i>I</i></Button>
+      <div className="bg-background rounded-md border shadow-lg max-w-4xl mx-auto">
+        <div className="flex items-center gap-1 border-b p-2 mb-2 sticky top-16 bg-background z-10">
+            <Button variant="outline" size="sm" onClick={() => handleFormat('bold')}><Bold className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => handleFormat('italic')}><Italic className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => handleFormat('underline')}><Underline className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => handleFormat('justifyLeft')}><AlignLeft className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => handleFormat('justifyCenter')}><AlignCenter className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => handleFormat('justifyRight')}><AlignRight className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => handleFormat('insertUnorderedList')}><List className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" onClick={() => handleFormat('insertOrderedList')}><ListOrdered className="h-4 w-4" /></Button>
         </div>
-        <div
-          contentEditable={true}
-          dangerouslySetInnerHTML={{ __html: editableContent }}
-          onBlur={(e) => setEditableContent(e.currentTarget.innerHTML)}
-          className="bg-white text-black p-4 rounded-md min-h-[800px] focus:outline-none"
-        />
+        <div id="printable-area" contentEditable={true} suppressContentEditableWarning={true} className="bg-white text-black p-8 min-h-[1000px] focus:outline-none">
+          {editableContent ? (
+            <div dangerouslySetInnerHTML={{ __html: editableContent }} />
+          ) : (
+            <BudgetPrintView budget={budget} />
+          )}
+        </div>
       </div>
     </div>
   );

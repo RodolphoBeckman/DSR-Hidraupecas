@@ -7,9 +7,7 @@ import type { Budget } from '@/lib/definitions';
 import { BudgetPrintView } from '@/components/budget-print-view';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, FileText } from 'lucide-react';
-import { saveAs } from 'file-saver';
-
+import { ArrowLeft, Printer } from 'lucide-react';
 
 export default function PrintBudgetPage() {
   const params = useParams();
@@ -37,19 +35,39 @@ export default function PrintBudgetPage() {
   };
   
   const handlePrint = async () => {
-    const element = printRef.current;
-    if (element) {
-        const html2pdf = (await import('html2pdf.js')).default;
-        
-        const opt = {
-          margin:       0,
-          filename:     `orcamento-${budget?.id}.pdf`,
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true },
-          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        const contentToPrint = editedContent ? `<div>${editedContent}</div>` : element;
-        html2pdf().from(contentToPrint).set(opt).save();
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      const contentToPrint = document.getElementById('printable-area')?.innerHTML;
+      if (contentToPrint) {
+        printWindow.document.write(`
+        <html>
+            <head>
+            <title>Imprimir Orçamento ${budget?.id}</title>
+              <script src="https://cdn.tailwindcss.com"></script>
+              <style>
+                body { font-family: sans-serif; }
+                .print-container {
+                  width: 210mm;
+                  margin: 0 auto;
+                  padding: 2rem;
+                }
+              </style>
+            </head>
+            <body>
+                <div class="print-container">
+                  ${contentToPrint}
+                </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    window.onafterprint = function() { window.close(); };
+                }
+            </script>
+            </body>
+        </html>
+        `);
+        printWindow.document.close();
+      }
     }
   };
 
@@ -87,11 +105,15 @@ export default function PrintBudgetPage() {
             </Button>
             <Button onClick={handlePrint}>
                 <Printer className="mr-2 h-4 w-4" />
-                Baixar PDF
+                Imprimir
             </Button>
         </div>
-        <div ref={printRef} dangerouslySetInnerHTML={editedContent ? { __html: editedContent } : undefined}>
-            {!editedContent && <BudgetPrintView budget={budget} />}
+        <div id="printable-area" ref={printRef}>
+          {editedContent ? (
+            <div dangerouslySetInnerHTML={{ __html: editedContent }} />
+          ) : (
+            <BudgetPrintView budget={budget} />
+          )}
         </div>
     </div>
   );
