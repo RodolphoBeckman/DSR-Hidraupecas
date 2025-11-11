@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { PlusCircle, Edit, Trash2, Building, User } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { PlusCircle, Edit, Trash2, Building, User, Search } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Button } from '@/components/ui/button';
@@ -50,7 +50,21 @@ export default function ClientsPage() {
   const [clients, setClients] = useLocalStorage<Client[]>('clients', []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentClient, setCurrentClient] = useState<Partial<Client>>({ ...emptyClient });
+  const [searchTerm, setSearchTerm] = useState('');
   const hasMounted = useMounted();
+
+  const filteredClients = useMemo(() => {
+    return clients.filter(client => {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      const clientName = client.name.toLowerCase();
+      const clientPhone = client.phone || '';
+      const clientCpfCnpj = client.cpfCnpj || '';
+
+      return clientName.includes(lowerCaseSearchTerm) || 
+             clientPhone.includes(searchTerm) ||
+             clientCpfCnpj.includes(searchTerm);
+    });
+  }, [clients, searchTerm]);
 
   const handleOpenDialog = (client?: Client) => {
     setCurrentClient(client ? { ...client } : { ...emptyClient });
@@ -136,9 +150,20 @@ export default function ClientsPage() {
           <CardDescription>Gerencie seus clientes cadastrados.</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Pesquisar por nome, telefone ou CPF/CNPJ..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full max-w-sm"
+              />
+            </div>
+          </div>
           <div className="space-y-4">
-            {clients.length > 0 ? (
-              clients.map(client => (
+            {filteredClients.length > 0 ? (
+              filteredClients.map(client => (
                 <div key={client.id} className="flex items-start justify-between p-4 rounded-lg border bg-card text-card-foreground shadow-sm">
                   <div className="grid gap-1">
                     <div className="flex items-center gap-2">
@@ -165,7 +190,9 @@ export default function ClientsPage() {
                 </div>
               ))
             ) : (
-              <p className="text-center text-muted-foreground py-8">Nenhum cliente encontrado. Adicione um para começar.</p>
+              <p className="text-center text-muted-foreground py-8">
+                {searchTerm ? 'Nenhum cliente encontrado para sua busca.' : 'Nenhum cliente encontrado. Adicione um para começar.'}
+              </p>
             )}
           </div>
         </CardContent>
