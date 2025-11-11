@@ -2,17 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Budget } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Save, FileDown } from 'lucide-react';
+import { ArrowLeft, Printer, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveAs } from 'file-saver';
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
-import 'react-quill/dist/quill.snow.css';
+import { Textarea } from '@/components/ui/textarea';
 
 const budgetToHtml = (budget: Budget): string => {
   // A simple and robust way to generate initial HTML
@@ -114,7 +110,7 @@ export default function EditBudgetPage() {
               </style>
             </head>
             <body>
-              ${editableContent}
+              <div style="white-space: pre-wrap;">${editableContent}</div>
               <script>
                 window.onload = function() {
                   window.print();
@@ -165,7 +161,7 @@ export default function EditBudgetPage() {
   return (
     <div className="p-4 md:p-8">
       <div className="flex justify-between items-center gap-4 mb-8">
-        <h1 className="text-2xl font-bold">Editor de Orçamento</h1>
+        <h1 className="text-2xl font-bold">Editor de Orçamento (HTML)</h1>
         <div className="flex gap-2">
             <Button onClick={handleBack} variant="secondary">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -182,22 +178,10 @@ export default function EditBudgetPage() {
         </div>
       </div>
       <div className="bg-background rounded-md">
-        <ReactQuill
-          theme="snow"
+        <Textarea
           value={editableContent}
-          onChange={setEditableContent}
-          className="bg-card text-card-foreground"
-          modules={{
-              toolbar: [
-                  [{ 'header': [1, 2, 3, false] }],
-                  ['bold', 'italic', 'underline','strike', 'blockquote'],
-                  [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-                  [{ 'align': [] }],
-                  [{'color': []}, {'background': []}],
-                  ['link', 'image'],
-                  ['clean']
-              ],
-          }}
+          onChange={(e) => setEditableContent(e.target.value)}
+          className="bg-card text-card-foreground h-[600px] font-mono"
         />
       </div>
     </div>

@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, FileText } from 'lucide-react';
 import { saveAs } from 'file-saver';
+import { asBlob } from 'html-to-docx';
 
 
 export default function PrintBudgetPage() {
@@ -49,6 +50,15 @@ export default function PrintBudgetPage() {
     }
   };
 
+  const handleExportDocx = async () => {
+    const element = printRef.current;
+    if (element && budget) {
+      // The library is imported dynamically only when the function is called
+      const { asBlob } = await import('html-to-docx');
+      const data = await asBlob(element.innerHTML);
+      saveAs(data, `orcamento-${budget.id}.docx`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -84,6 +94,10 @@ export default function PrintBudgetPage() {
             <Button onClick={handlePrint}>
                 <Printer className="mr-2 h-4 w-4" />
                 Baixar PDF
+            </Button>
+            <Button onClick={handleExportDocx}>
+                <FileText className="mr-2 h-4 w-4" />
+                Baixar DOCX
             </Button>
         </div>
         <div ref={printRef}>
