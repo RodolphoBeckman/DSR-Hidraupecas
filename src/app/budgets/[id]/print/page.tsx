@@ -7,8 +7,7 @@ import type { Budget } from '@/lib/definitions';
 import { BudgetPrintView } from '@/components/budget-print-view';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, FileText } from 'lucide-react';
-import { saveAs } from 'file-saver';
+import { ArrowLeft, Printer } from 'lucide-react';
 
 
 export default function PrintBudgetPage() {
@@ -49,31 +48,6 @@ export default function PrintBudgetPage() {
     }
   };
 
-  const handleExportDocx = async () => {
-    const element = printRef.current;
-    if (element) {
-      const htmlToDocx = (await import('html-to-docx')).default;
-      
-      const clonedElement = element.cloneNode(true) as HTMLElement;
-      
-      const styleTag = clonedElement.querySelector('style');
-      if (styleTag) {
-        styleTag.remove();
-      }
-
-      const fileBuffer = await htmlToDocx(clonedElement.outerHTML, undefined, {
-        margins: {
-          top: 720,
-          right: 720,
-          bottom: 720,
-          left: 720,
-        },
-      });
-  
-      saveAs(fileBuffer as Blob, `orcamento-${budget?.id}.docx`);
-    }
-  };
-
 
   if (isLoading) {
     return (
@@ -109,10 +83,6 @@ export default function PrintBudgetPage() {
             <Button onClick={handlePrint}>
                 <Printer className="mr-2 h-4 w-4" />
                 Baixar PDF
-            </Button>
-            <Button onClick={handleExportDocx} variant="outline">
-                <FileText className="mr-2 h-4 w-4" />
-                Baixar DOCX
             </Button>
         </div>
         <div ref={printRef}>
