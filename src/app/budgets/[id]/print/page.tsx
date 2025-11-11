@@ -7,9 +7,7 @@ import type { Budget } from '@/lib/definitions';
 import { BudgetPrintView } from '@/components/budget-print-view';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, FileText } from 'lucide-react';
-import { saveAs } from 'file-saver';
-import { asBlob } from 'html-to-docx';
+import { ArrowLeft, Printer } from 'lucide-react';
 
 
 export default function PrintBudgetPage() {
@@ -21,11 +19,14 @@ export default function PrintBudgetPage() {
   const [budgets] = useLocalStorage<Budget[]>('budgets', []);
   const [budget, setBudget] = useState<Budget | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [editedContent, setEditedContent] = useState<string | null>(null);
 
   useEffect(() => {
     const foundBudget = budgets.find(b => b.id === id);
     if (foundBudget) {
       setBudget(foundBudget);
+       const storedContent = localStorage.getItem(`budget-html-${id}`);
+       setEditedContent(storedContent);
     }
     setIsLoading(false);
   }, [id, budgets]);
@@ -46,19 +47,11 @@ export default function PrintBudgetPage() {
           html2canvas:  { scale: 2, useCORS: true },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-        html2pdf().from(element).set(opt).save();
+        const contentToPrint = editedContent ? `<div>${editedContent}</div>` : element;
+        html2pdf().from(contentToPrint).set(opt).save();
     }
   };
 
-  const handleExportDocx = async () => {
-    const element = printRef.current;
-    if (element && budget) {
-      // The library is imported dynamically only when the function is called
-      const { asBlob } = await import('html-to-docx');
-      const data = await asBlob(element.innerHTML);
-      saveAs(data, `orcamento-${budget.id}.docx`);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -95,13 +88,9 @@ export default function PrintBudgetPage() {
                 <Printer className="mr-2 h-4 w-4" />
                 Baixar PDF
             </Button>
-            <Button onClick={handleExportDocx}>
-                <FileText className="mr-2 h-4 w-4" />
-                Baixar DOCX
-            </Button>
         </div>
-        <div ref={printRef}>
-            <BudgetPrintView budget={budget} />
+        <div ref={printRef} dangerouslySetInnerHTML={editedContent ? { __html: editedContent } : undefined}>
+            {!editedContent && <BudgetPrintView budget={budget} />}
         </div>
     </div>
   );
