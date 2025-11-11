@@ -7,7 +7,8 @@ import type { Budget } from '@/lib/definitions';
 import { BudgetPrintView } from '@/components/budget-print-view';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Printer, FileText } from 'lucide-react';
+import { saveAs } from 'file-saver';
 
 
 export default function PrintBudgetPage() {
