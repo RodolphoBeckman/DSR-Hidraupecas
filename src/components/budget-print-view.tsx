@@ -58,6 +58,19 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
       return format(new Date(dateString), "dd/MM/yyyy 'às' HH:mm");
   }
 
+  const formatAddress = (address: Budget['client']['address']) => {
+    if (!address) return 'Endereço não informado';
+    const parts = [
+      address.street,
+      address.number,
+      address.neighborhood,
+      address.city,
+      address.state,
+      address.zipCode
+    ].filter(Boolean);
+    return parts.join(', ');
+  }
+
   const subtotal = budget.budgetType === 'group' 
     ? budget.total + (budget.discount || 0)
     : budget.items.reduce((sum, item) => sum + (item.value || 0), 0);
@@ -123,7 +136,7 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
                         {budget.client.ieRg && <p>{budget.client.type === 'pessoa_juridica' ? 'IE' : 'RG'}: {budget.client.ieRg}</p>}
                         <p>Tel: {budget.client.phone}</p>
                         {budget.client.email && <p>Email: {budget.client.email}</p>}
-                        {budget.client.address && <p>End: {budget.client.address}</p>}
+                        {budget.client.address && <p>End: {formatAddress(budget.client.address)}</p>}
                     </div>
                     <div className="border p-3 rounded-md">
                         <h3 className="font-bold mb-1 uppercase">Vendedor:</h3>

@@ -7,7 +7,14 @@ export type Client = {
   ieRg?: string; // Inscrição Estadual ou RG
   phone: string;
   email: string;
-  address?: string;
+  address?: {
+    street?: string;
+    number?: string;
+    neighborhood?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+  };
   observations?: string;
 };
 

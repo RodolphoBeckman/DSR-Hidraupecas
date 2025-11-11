@@ -24,8 +24,9 @@ import PageHeader from '@/components/page-header';
 import { useMounted } from '@/hooks/use-mounted';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
 
-const emptyClient: Omit<Client, 'id'> = { 
+const emptyClient: Partial<Client> = { 
   type: 'pessoa_juridica', 
   name: '', 
   tradeName: '', 
@@ -33,7 +34,14 @@ const emptyClient: Omit<Client, 'id'> = {
   ieRg: '', 
   phone: '', 
   email: '', 
-  address: '',
+  address: {
+    street: '',
+    number: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    zipCode: ''
+  },
   observations: '',
 };
 
@@ -41,11 +49,11 @@ export default function ClientsPage() {
   const { toast } = useToast();
   const [clients, setClients] = useLocalStorage<Client[]>('clients', []);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentClient, setCurrentClient] = useState<Partial<Client>>(emptyClient);
+  const [currentClient, setCurrentClient] = useState<Partial<Client>>({ ...emptyClient });
   const hasMounted = useMounted();
 
   const handleOpenDialog = (client?: Client) => {
-    setCurrentClient(client || { ...emptyClient });
+    setCurrentClient(client ? { ...client } : { ...emptyClient });
     setIsDialogOpen(true);
   };
 
@@ -69,7 +77,7 @@ export default function ClientsPage() {
     }
     
     setIsDialogOpen(false);
-    setCurrentClient(emptyClient);
+    setCurrentClient({ ...emptyClient });
   };
 
   const handleDeleteClient = (id: string) => {
@@ -79,6 +87,35 @@ export default function ClientsPage() {
   
   const handleClientTypeChange = (type: 'pessoa_fisica' | 'pessoa_juridica') => {
     setCurrentClient(prev => ({ ...prev, type }));
+  }
+
+  const handleClientInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentClient(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCurrentClient(prev => ({
+        ...prev,
+        address: {
+            ...prev.address,
+            [name]: value
+        }
+    }));
+  };
+
+  const formatAddress = (address: Client['address']) => {
+    if (!address) return '';
+    const parts = [
+      address.street,
+      address.number,
+      address.neighborhood,
+      address.city,
+      address.state,
+      address.zipCode,
+    ];
+    return parts.filter(Boolean).join(', ');
   }
 
   if (!hasMounted) {
@@ -115,7 +152,7 @@ export default function ClientsPage() {
                         <p><span className="font-medium">Telefone:</span> {client.phone}</p>
                         <p><span className="font-medium">Email:</span> {client.email}</p>
                     </div>
-                    {client.address && <p className="text-sm text-muted-foreground"><span className="font-medium">Endereço:</span> {client.address}</p>}
+                    {client.address && <p className="text-sm text-muted-foreground"><span className="font-medium">Endereço:</span> {formatAddress(client.address)}</p>}
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(client)}>
@@ -135,14 +172,14 @@ export default function ClientsPage() {
       </Card>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>{currentClient.id ? 'Editar Cliente' : 'Adicionar Novo Cliente'}</DialogTitle>
             <DialogDescription>
               {currentClient.id ? 'Atualize os detalhes deste cliente.' : 'Preencha os detalhes do novo cliente.'}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-6 py-4">
+          <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-6">
             <RadioGroup 
                 value={currentClient.type || 'pessoa_juridica'} 
                 onValueChange={(value) => handleClientTypeChange(value as 'pessoa_fisica' | 'pessoa_juridica')}
@@ -162,39 +199,70 @@ export default function ClientsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div className="space-y-2">
                     <Label htmlFor="name">{currentClient.type === 'pessoa_fisica' ? 'Nome Completo' : 'Razão Social'}</Label>
-                    <Input id="name" value={currentClient.name || ''} onChange={e => setCurrentClient({...currentClient, name: e.target.value})} />
+                    <Input id="name" name="name" value={currentClient.name || ''} onChange={handleClientInputChange} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="tradeName">Nome Fantasia</Label>
-                    <Input id="tradeName" value={currentClient.tradeName || ''} onChange={e => setCurrentClient({...currentClient, tradeName: e.target.value})} disabled={currentClient.type === 'pessoa_fisica'} />
+                    <Input id="tradeName" name="tradeName" value={currentClient.tradeName || ''} onChange={handleClientInputChange} disabled={currentClient.type === 'pessoa_fisica'} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="cpfCnpj">{currentClient.type === 'pessoa_fisica' ? 'CPF' : 'CNPJ'}</Label>
-                    <Input id="cpfCnpj" value={currentClient.cpfCnpj || ''} onChange={e => setCurrentClient({...currentClient, cpfCnpj: e.target.value})} />
+                    <Input id="cpfCnpj" name="cpfCnpj" value={currentClient.cpfCnpj || ''} onChange={handleClientInputChange} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="ieRg">{currentClient.type === 'pessoa_fisica' ? 'RG' : 'Inscrição Estadual'}</Label>
-                    <Input id="ieRg" value={currentClient.ieRg || ''} onChange={e => setCurrentClient({...currentClient, ieRg: e.target.value})} />
+                    <Input id="ieRg" name="ieRg" value={currentClient.ieRg || ''} onChange={handleClientInputChange} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="phone">Telefone</Label>
-                    <Input id="phone" value={currentClient.phone || ''} onChange={e => setCurrentClient({...currentClient, phone: e.target.value})} />
+                    <Input id="phone" name="phone" value={currentClient.phone || ''} onChange={handleClientInputChange} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" value={currentClient.email || ''} onChange={e => setCurrentClient({...currentClient, email: e.target.value})} />
+                    <Input id="email" name="email" type="email" value={currentClient.email || ''} onChange={handleClientInputChange} />
                 </div>
             </div>
-             <div className="space-y-2">
-              <Label htmlFor="address">Endereço</Label>
-              <Input id="address" value={currentClient.address || ''} onChange={e => setCurrentClient({...currentClient, address: e.target.value})} />
+            <Separator />
+            <div className="space-y-4">
+                <h3 className="text-lg font-medium">Endereço</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2 md:col-span-1">
+                        <Label htmlFor="zipCode">CEP</Label>
+                        <Input id="zipCode" name="zipCode" value={currentClient.address?.zipCode || ''} onChange={handleAddressChange} />
+                    </div>
+                     <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="street">Logradouro</Label>
+                        <Input id="street" name="street" value={currentClient.address?.street || ''} onChange={handleAddressChange} />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="number">Número</Label>
+                        <Input id="number" name="number" value={currentClient.address?.number || ''} onChange={handleAddressChange} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="neighborhood">Bairro</Label>
+                        <Input id="neighborhood" name="neighborhood" value={currentClient.address?.neighborhood || ''} onChange={handleAddressChange} />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="city">Cidade</Label>
+                        <Input id="city" name="city" value={currentClient.address?.city || ''} onChange={handleAddressChange} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="state">Estado</Label>
+                        <Input id="state" name="state" value={currentClient.address?.state || ''} onChange={handleAddressChange} />
+                    </div>
+                </div>
             </div>
+            <Separator />
             <div className="space-y-2">
               <Label htmlFor="observations">Observações</Label>
               <Textarea id="observations" value={currentClient.observations || ''} onChange={e => setCurrentClient({...currentClient, observations: e.target.value})} />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="border-t pt-4">
             <DialogClose asChild>
               <Button variant="outline">Cancelar</Button>
             </DialogClose>
