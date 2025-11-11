@@ -6,7 +6,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Budget } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer, Save, FileText, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered } from 'lucide-react';
+import { ArrowLeft, Printer, Save, FileText, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Pipette } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BudgetPrintView } from '@/components/budget-print-view';
 
@@ -142,6 +142,17 @@ export default function EditBudgetPage() {
             <Button variant="outline" size="sm" onClick={() => handleFormat('justifyRight')}><AlignRight className="h-4 w-4" /></Button>
             <Button variant="outline" size="sm" onClick={() => handleFormat('insertUnorderedList')}><List className="h-4 w-4" /></Button>
             <Button variant="outline" size="sm" onClick={() => handleFormat('insertOrderedList')}><ListOrdered className="h-4 w-4" /></Button>
+            <Button variant="outline" size="sm" asChild className="relative">
+                <label htmlFor="color-picker" className="cursor-pointer">
+                    <Pipette className="h-4 w-4" />
+                    <input 
+                        id="color-picker"
+                        type="color" 
+                        onChange={(e) => handleFormat('foreColor', e.target.value)} 
+                        className="absolute opacity-0 w-full h-full top-0 left-0"
+                    />
+                </label>
+            </Button>
         </div>
         <div id="printable-area" contentEditable={true} suppressContentEditableWarning={true} className="bg-white text-black p-8 min-h-[1000px] focus:outline-none">
           {editableContent ? (
