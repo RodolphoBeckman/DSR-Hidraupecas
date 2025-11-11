@@ -2,15 +2,18 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Budget } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { BudgetPrintView } from '@/components/budget-print-view';
+import { budgetToHtml } from '@/lib/budget-to-html';
 import { cn } from '@/lib/utils';
+import 'react-quill/dist/quill.snow.css';
 
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function EditBudgetPage() {
   const params = useParams();
@@ -20,17 +23,15 @@ export default function EditBudgetPage() {
 
   const [budgets, setBudgets] = useLocalStorage<Budget[]>('budgets', []);
   const [budget, setBudget] = useState<Budget | null>(null);
+  const [editableContent, setEditableContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const foundBudget = budgets.find(b => b.id === id);
     if (foundBudget) {
       setBudget(foundBudget);
       const storedContent = localStorage.getItem(`budget-html-${id}`);
-      if (storedContent && editorRef.current) {
-        editorRef.current.innerHTML = storedContent;
-      }
+      setEditableContent(storedContent || budgetToHtml(foundBudget));
     }
     setIsLoading(false);
   }, [id, budgets]);
@@ -40,7 +41,7 @@ export default function EditBudgetPage() {
   };
 
   const handlePrint = async () => {
-    if (editorRef.current) {
+    if (editableContent) {
         const printWindow = window.open('', '_blank');
         if (printWindow) {
             printWindow.document.write(`
@@ -55,11 +56,11 @@ export default function EditBudgetPage() {
                  </style>
                 </head>
                 <body>
-                    ${editorRef.current.innerHTML}
+                    ${editableContent}
                 <script>
                     window.onload = function() {
-                    window.print();
-                    window.onafterprint = function() { window.close(); };
+                        window.print();
+                        window.onafterprint = function() { window.close(); };
                     }
                 </script>
                 </body>
@@ -71,8 +72,8 @@ export default function EditBudgetPage() {
   };
   
   const handleSaveContent = () => {
-      if (budget && editorRef.current) {
-          localStorage.setItem(`budget-html-${id}`, editorRef.current.innerHTML);
+      if (budget) {
+          localStorage.setItem(`budget-html-${id}`, editableContent);
           toast({
               title: "Conteúdo Salvo",
               description: "As alterações no orçamento foram salvas localmente."
@@ -123,17 +124,25 @@ export default function EditBudgetPage() {
             </Button>
         </div>
       </div>
-      <div 
-        ref={editorRef}
-        contentEditable={true}
-        suppressContentEditableWarning={true}
-        className={cn(
-            "bg-white text-black p-8 rounded-md shadow-lg",
-            "prose prose-sm max-w-none",
-            "focus:outline-none focus:ring-2 focus:ring-primary"
-        )}
-       >
-         <BudgetPrintView budget={budget} />
+      <div className="bg-background rounded-md">
+        <ReactQuill
+          theme="snow"
+          value={editableContent}
+          onChange={setEditableContent}
+          className="bg-white text-black"
+          modules={{
+            toolbar: [
+              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+              [{ 'font': [] }],
+              ['bold', 'italic', 'underline', 'strike'],
+              [{'color': []}, {'background': []}],
+              [{'list': 'ordered'}, {'list': 'bullet'}],
+              [{'align': []}],
+              ['link', 'image'],
+              ['clean']
+            ],
+          }}
+        />
       </div>
     </div>
   );
