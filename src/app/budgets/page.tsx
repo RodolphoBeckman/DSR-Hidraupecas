@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Trash2, Printer, Calendar as CalendarIcon, X, Edit, CheckCircle, Clock } from 'lucide-react';
+import { Search, Trash2, Printer, Calendar as CalendarIcon, X, Edit, CheckCircle, Clock, FileText } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -95,6 +95,10 @@ export default function BudgetsPage() {
 
   const handleEditBudget = (id: string) => {
     router.push(`/budgets/new?id=${id}`);
+  };
+
+  const handleEditAndPrintBudget = (id: string) => {
+    router.push(`/budgets/${id}/edit`);
   };
   
   const handleClearFilters = () => {
@@ -235,7 +239,10 @@ export default function BudgetsPage() {
                             <Edit className="mr-2 h-4 w-4" /> Editar
                           </Button>
                            <Button variant="outline" size="sm" onClick={() => handlePrintBudget(budget.id)}>
-                            <Printer className="mr-2 h-4 w-4" /> Imprimir
+                            <Printer className="mr-2 h-4 w-4" /> Imprimir PDF
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleEditAndPrintBudget(budget.id)}>
+                            <FileText className="mr-2 h-4 w-4" /> Editar e Imprimir
                           </Button>
                           <Button variant="destructive" size="sm" onClick={() => openDeleteConfirmation(budget.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Excluir
