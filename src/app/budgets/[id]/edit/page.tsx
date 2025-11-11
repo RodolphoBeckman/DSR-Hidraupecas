@@ -5,15 +5,13 @@ import { useParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Budget } from '@/lib/definitions';
-import { BudgetPrintView } from '@/components/budget-print-view';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { renderToString } from 'react-dom/server';
 
 // Dynamically import ReactQuill to avoid SSR issues
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+const ReactQuill = dynamic(() => import('react-quilljs').then(mod => mod.ReactQuill), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
 
 const budgetToHtml = (budget: Budget): string => {
