@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Budget } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,8 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { budgetToHtml } from '@/lib/budget-to-html';
 import { cn } from '@/lib/utils';
 import 'react-quill/dist/quill.snow.css';
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export default function EditBudgetPage() {
   const params = useParams();
@@ -81,6 +78,10 @@ export default function EditBudgetPage() {
       }
   }
 
+  const handleFormat = (command: string) => {
+    document.execCommand(command, false);
+  }
+
   if (isLoading) {
     return (
       <div className="p-8 bg-muted min-h-screen">
@@ -124,24 +125,16 @@ export default function EditBudgetPage() {
             </Button>
         </div>
       </div>
-      <div className="bg-background rounded-md">
-        <ReactQuill
-          theme="snow"
-          value={editableContent}
-          onChange={setEditableContent}
-          className="bg-white text-black"
-          modules={{
-            toolbar: [
-              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-              [{ 'font': [] }],
-              ['bold', 'italic', 'underline', 'strike'],
-              [{'color': []}, {'background': []}],
-              [{'list': 'ordered'}, {'list': 'bullet'}],
-              [{'align': []}],
-              ['link', 'image'],
-              ['clean']
-            ],
-          }}
+      <div className="bg-background rounded-md border p-2">
+        <div className="flex items-center gap-2 border-b p-2 mb-2">
+            <Button variant="outline" size="sm" onClick={() => handleFormat('bold')}><b>B</b></Button>
+            <Button variant="outline" size="sm" onClick={() => handleFormat('italic')}><i>I</i></Button>
+        </div>
+        <div
+          contentEditable={true}
+          dangerouslySetInnerHTML={{ __html: editableContent }}
+          onBlur={(e) => setEditableContent(e.currentTarget.innerHTML)}
+          className="bg-white text-black p-4 rounded-md min-h-[800px] focus:outline-none"
         />
       </div>
     </div>
