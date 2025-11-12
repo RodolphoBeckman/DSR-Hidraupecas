@@ -48,7 +48,11 @@ export default function EditBudgetPage() {
             <title>Imprimir Orçamento ${budget?.id}</title>
               <script src="https://cdn.tailwindcss.com"></script>
               <style>
-                body { font-family: sans-serif; }
+                body { 
+                    font-family: sans-serif;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
                 .print-container {
                   width: 210mm;
                   margin: 0 auto;
