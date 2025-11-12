@@ -81,8 +81,8 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
         <style jsx global>{`
             @media print {
               body {
-                  -webkit-print-color-adjust: exact;
-                  print-color-adjust: exact;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
               }
               .no-print {
                   display: none;
@@ -104,7 +104,7 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
                 <Image 
                   src={settings.headerImage || headerPlaceholder.imageUrl} 
                   alt="Cabeçalho do Orçamento" 
-                  layout="fill" 
+                  fill={true} 
                   objectFit="cover"
                   className="object-center"
                 />
