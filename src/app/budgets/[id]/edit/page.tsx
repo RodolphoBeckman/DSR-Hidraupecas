@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -60,7 +61,7 @@ export default function EditBudgetPage() {
                 }
               </style>
             </head>
-            <body>
+            <body style="print-color-adjust: exact; -webkit-print-color-adjust: exact;">
                 <div class="print-container">
                   ${contentToPrint}
                 </div>

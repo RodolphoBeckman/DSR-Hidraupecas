@@ -74,7 +74,7 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
 
   const subtotal = budget.budgetType === 'group' 
     ? budget.total + (budget.discount || 0)
-    : budget.items.reduce((sum, item) => sum + (item.value || 0), 0);
+    : budget.items.reduce((sum, item) => sum + item.value, 0);
 
   return (
      <div className="bg-white text-black">
@@ -157,14 +157,18 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
                         <thead>
                             <tr>
                                 <th className="text-left py-1 font-bold uppercase">DESCRIÇÃO</th>
-                                {budget.budgetType === 'items' && <th className="text-right py-1 font-bold uppercase w-32">VALOR</th>}
+                                {budget.budgetType === 'items' && <th className="text-center py-1 font-bold uppercase w-20">QTD.</th>}
+                                {budget.budgetType === 'items' && <th className="text-right py-1 font-bold uppercase w-32">VLR. UNIT.</th>}
+                                {budget.budgetType === 'items' && <th className="text-right py-1 font-bold uppercase w-32">VLR. TOTAL</th>}
                             </tr>
                         </thead>
                         <tbody>
                             {budget.items.map(item => (
                                 <tr key={item.id} className="border-b">
                                     <td className="py-1.5 pr-2 whitespace-pre-wrap align-top">{item.description}</td>
-                                    {budget.budgetType === 'items' && <td className="text-right py-1.5 align-top">{formatCurrency(item.value)}</td>}
+                                     {budget.budgetType === 'items' && <td className="text-center py-1.5 align-top">{item.quantity}</td>}
+                                     {budget.budgetType === 'items' && <td className="text-right py-1.5 align-top">{formatCurrency(item.unitPrice)}</td>}
+                                     {budget.budgetType === 'items' && <td className="text-right py-1.5 align-top">{formatCurrency(item.value)}</td>}
                                 </tr>
                             ))}
                             {budget.budgetType === 'group' && (

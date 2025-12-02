@@ -42,7 +42,8 @@ export default function BudgetForm() {
   const [installmentsCount, setInstallmentsCount] = useState<number>(1);
   const [items, setItems] = useState<ServiceItem[]>([]);
   const [newItemDesc, setNewItemDesc] = useState('');
-  const [newItemValue, setNewItemValue] = useState('');
+  const [newItemQuantity, setNewItemQuantity] = useState(1);
+  const [newItemUnitPrice, setNewItemUnitPrice] = useState('');
   
   const [discount, setDiscount] = useState<number>(0);
   const [discountInput, setDiscountInput] = useState<string>('');
@@ -89,7 +90,7 @@ export default function BudgetForm() {
     if (budgetType === 'group') {
       return groupTotal;
     }
-    return items.reduce((sum, item) => sum + (item.value || 0), 0);
+    return items.reduce((sum, item) => sum + item.value, 0);
   }, [items, budgetType, groupTotal]);
 
   const total = useMemo(() => subtotal - discount, [subtotal, discount]);
@@ -151,22 +152,37 @@ export default function BudgetForm() {
     }
 
     if (budgetType === 'items') {
-      const value = parseBRL(newItemValue);
-      if (value <= 0) {
+      const unitPrice = parseBRL(newItemUnitPrice);
+      if (unitPrice <= 0) {
         toast({
           variant: 'destructive',
           title: 'Valor Inválido',
-          description: 'Por favor, forneça um valor positivo para o serviço.',
+          description: 'Por favor, forneça um preço unitário positivo para o serviço.',
         });
         return;
       }
-      setItems([...items, { id: uuidv4(), description: newItemDesc.trim(), value }]);
+      if (newItemQuantity <= 0) {
+        toast({
+          variant: 'destructive',
+          title: 'Quantidade Inválida',
+          description: 'Por favor, forneça uma quantidade positiva para o serviço.',
+        });
+        return;
+      }
+      setItems([...items, { 
+          id: uuidv4(), 
+          description: newItemDesc.trim(), 
+          quantity: newItemQuantity,
+          unitPrice: unitPrice,
+          value: newItemQuantity * unitPrice,
+        }]);
     } else {
-       setItems([...items, { id: uuidv4(), description: newItemDesc.trim() }]);
+       setItems([...items, { id: uuidv4(), description: newItemDesc.trim(), quantity: 1, unitPrice: 0, value: 0 }]);
     }
 
     setNewItemDesc('');
-    setNewItemValue('');
+    setNewItemUnitPrice('');
+    setNewItemQuantity(1);
   };
   
   const handleItemDescKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -348,7 +364,7 @@ export default function BudgetForm() {
               </div>
 
               <div className={cn(
-                  "grid grid-cols-1 md:grid-cols-[1fr_150px_auto] gap-2 items-end",
+                  "grid grid-cols-1 md:grid-cols-[1fr_80px_150px_auto] gap-2 items-end",
                   budgetType === 'group' && "md:grid-cols-[1fr_auto]"
               )}>
                 <div className="space-y-1">
@@ -363,10 +379,16 @@ export default function BudgetForm() {
                     />
                 </div>
                 {budgetType === 'items' && (
-                  <div className="space-y-1">
-                    <Label htmlFor="item-value">Valor (R$)</Label>
-                    <Input id="item-value" type="text" value={newItemValue} onChange={e => setNewItemValue(e.target.value)} placeholder="Ex: 1.500,00" />
-                  </div>
+                  <>
+                    <div className="space-y-1">
+                        <Label htmlFor="item-quantity">Qtd.</Label>
+                        <Input id="item-quantity" type="number" value={newItemQuantity} onChange={e => setNewItemQuantity(Math.max(1, parseInt(e.target.value, 10)))} min="1" placeholder="1" />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="item-unit-price">Vlr. Unit. (R$)</Label>
+                        <Input id="item-unit-price" type="text" value={newItemUnitPrice} onChange={e => setNewItemUnitPrice(e.target.value)} placeholder="Ex: 1.500,00" />
+                    </div>
+                  </>
                 )}
                 <Button onClick={handleAddItem} className="w-full md:w-auto">
                   <PlusCircle className="mr-2" /> Adicionar Item
@@ -379,10 +401,15 @@ export default function BudgetForm() {
                 ) : (
                   items.map((item, index) => (
                     <div key={item.id} className="flex items-start justify-between p-2 rounded-md bg-secondary">
-                      <span className="font-medium whitespace-pre-wrap flex-1">{item.description}</span>
+                      <div className="flex-1">
+                        <span className="font-medium whitespace-pre-wrap">{item.description}</span>
+                        {budgetType === 'items' && item.quantity > 1 && (
+                            <p className="text-sm text-muted-foreground">{item.quantity} x {formatCurrency(item.unitPrice)}</p>
+                        )}
+                      </div>
                       <div className="flex items-center gap-4">
                         {budgetType === 'items' && item.value && (
-                          <span className="text-muted-foreground">{formatCurrency(item.value)}</span>
+                          <span className="font-semibold">{formatCurrency(item.value)}</span>
                         )}
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive flex-shrink-0" onClick={() => handleRemoveItem(item.id)}>
                           <Trash2 className="h-4 w-4" />

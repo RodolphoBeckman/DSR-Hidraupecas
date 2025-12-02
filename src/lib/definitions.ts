@@ -35,7 +35,9 @@ export type PaymentPlan = {
 export type ServiceItem = {
   id: string;
   description: string;
-  value?: number;
+  quantity: number;
+  unitPrice: number;
+  value: number; // total for the item (quantity * unitPrice)
 };
 
 export type Budget = {
