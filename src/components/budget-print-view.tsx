@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 
 const initialCompanyInfo: CompanyInfo = {
   name: '',
+  cnpj: '',
   address: '',
   cityStateZip: '',
   email: '',
@@ -113,6 +114,7 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
               <div className="relative z-10 flex h-full items-center justify-between p-4 text-white">
                 <div className="space-y-0.5">
                   <h1 className="text-xl font-bold uppercase">{settings.companyInfo?.name || 'Nome da Empresa'}</h1>
+                  {settings.companyInfo?.cnpj && <p className="text-xs">CNPJ: {settings.companyInfo.cnpj}</p>}
                   <p className="text-xs">{settings.companyInfo?.address || 'Endereço'}</p>
                   <p className="text-xs">{settings.companyInfo?.cityStateZip || 'Cidade, Estado, CEP'}</p>
                   <p className="text-xs">{settings.companyInfo?.email || 'email@empresa.com'}</p>

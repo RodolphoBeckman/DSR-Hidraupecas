@@ -1,3 +1,4 @@
+
 export type Client = {
   id: string;
   type: 'pessoa_fisica' | 'pessoa_juridica';
@@ -54,6 +55,7 @@ export type Budget = {
 
 export type CompanyInfo = {
   name: string | null;
+  cnpj: string | null;
   address: string | null;
   cityStateZip: string | null;
   email: string | null;

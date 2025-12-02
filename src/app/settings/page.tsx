@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -29,6 +30,7 @@ import {
 
 const initialCompanyInfo: CompanyInfo = {
   name: '',
+  cnpj: '',
   address: '',
   cityStateZip: '',
   email: '',
@@ -444,6 +446,10 @@ export default function SettingsPage() {
                     <Label htmlFor="companyName">Nome da Empresa</Label>
                     <Input id="companyName" name="name" value={companyInfo.name || ''} onChange={handleCompanyInfoChange} placeholder="Sua Empresa LTDA" />
                 </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="companyCnpj">CNPJ</Label>
+                    <Input id="companyCnpj" name="cnpj" value={companyInfo.cnpj || ''} onChange={handleCompanyInfoChange} placeholder="00.000.000/0001-00" />
+                </div>
                 <div className="space-y-2">
                     <Label htmlFor="companyAddress">Endereço</Label>
                     <Input id="companyAddress" name="address" value={companyInfo.address || ''} onChange={handleCompanyInfoChange} placeholder="Rua Exemplo, 123, Sala 100" />
@@ -452,7 +458,7 @@ export default function SettingsPage() {
                     <Label htmlFor="companyCity">Cidade, Estado, CEP</Label>
                     <Input id="companyCity" name="cityStateZip" value={companyInfo.cityStateZip || ''} onChange={handleCompanyInfoChange} placeholder="Cidade, Estado, 12345-678" />
                 </div>
-                 <div className="space-y-2">
+                 <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="companyEmail">Email de Contato</Label>
                     <Input id="companyEmail" name="email" type="email" value={companyInfo.email || ''} onChange={handleCompanyInfoChange} placeholder="contato@suaempresa.com" />
                 </div>
