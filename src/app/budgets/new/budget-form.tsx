@@ -448,7 +448,7 @@ export default function BudgetForm() {
                   </div>
                   <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
                       <Label htmlFor='group-unit-price' className="flex items-center gap-2 cursor-pointer">
-                          <DollarSign className="h-5 w-5" /> Valor Unitário do Grupo (R$)
+                          <DollarSign className="h-5 w-5" /> Valor Total Unitário (R$)
                       </Label>
                       <Input 
                           id="group-unit-price" 
