@@ -46,6 +46,8 @@ export type Budget = {
   salesperson: Salesperson;
   items: ServiceItem[];
   budgetType: 'items' | 'group';
+  groupUnitPrice?: number;
+  groupQuantity?: number;
   observation?: string;
   paymentPlan?: PaymentPlan;
   installmentsCount?: number;

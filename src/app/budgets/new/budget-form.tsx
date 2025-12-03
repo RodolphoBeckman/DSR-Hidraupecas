@@ -51,8 +51,9 @@ export default function BudgetForm() {
   const [status, setStatus] = useState<Budget['status']>('pendente');
   const [budgetType, setBudgetType] = useState<Budget['budgetType']>('items');
   
-  const [groupTotal, setGroupTotal] = useState<number>(0);
-  const [groupTotalInput, setGroupTotalInput] = useState<string>('');
+  const [groupUnitPrice, setGroupUnitPrice] = useState<number>(0);
+  const [groupUnitPriceInput, setGroupUnitPriceInput] = useState<string>('');
+  const [groupQuantity, setGroupQuantity] = useState<number>(1);
   const [observation, setObservation] = useState<string>('');
 
 
@@ -68,9 +69,9 @@ export default function BudgetForm() {
         setObservation(budgetToEdit.observation || '');
         
         if (budgetToEdit.budgetType === 'group') {
-          const totalValue = budgetToEdit.total + (budgetToEdit.discount || 0);
-          setGroupTotal(totalValue);
-          setGroupTotalInput(formatBRL(totalValue));
+          setGroupUnitPrice(budgetToEdit.groupUnitPrice || 0);
+          setGroupUnitPriceInput(formatBRL(budgetToEdit.groupUnitPrice || 0));
+          setGroupQuantity(budgetToEdit.groupQuantity || 1);
         }
         if(budgetToEdit.paymentPlan) {
             setSelectedPaymentPlanId(budgetToEdit.paymentPlan.id);
@@ -88,10 +89,10 @@ export default function BudgetForm() {
 
   const subtotal = useMemo(() => {
     if (budgetType === 'group') {
-      return groupTotal;
+      return groupUnitPrice * groupQuantity;
     }
     return items.reduce((sum, item) => sum + item.value, 0);
-  }, [items, budgetType, groupTotal]);
+  }, [items, budgetType, groupUnitPrice, groupQuantity]);
 
   const total = useMemo(() => subtotal - discount, [subtotal, discount]);
   
@@ -212,10 +213,10 @@ export default function BudgetForm() {
     const client = clients.find(c => c.id === selectedClientId);
     const salesperson = salespeople.find(s => s.id === selectedSalespersonId);
     
-    if (!client || !salesperson || (budgetType === 'group' && groupTotal <= 0) || (budgetType === 'items' && items.length === 0)) {
+    if (!client || !salesperson || (budgetType === 'group' && groupUnitPrice <= 0) || (budgetType === 'items' && items.length === 0)) {
         let description = 'Por favor, selecione um cliente, um vendedor e adicione pelo menos um item de serviço.';
-        if (budgetType === 'group' && groupTotal <= 0) {
-          description = 'Por favor, insira um valor total para o grupo de serviços.';
+        if (budgetType === 'group' && groupUnitPrice <= 0) {
+          description = 'Por favor, insira um valor unitário para o grupo de serviços.';
         }
         toast({
             variant: 'destructive',
@@ -230,6 +231,8 @@ export default function BudgetForm() {
         salesperson,
         items,
         budgetType,
+        groupUnitPrice: budgetType === 'group' ? groupUnitPrice : undefined,
+        groupQuantity: budgetType === 'group' ? groupQuantity : undefined,
         observation: observation || undefined,
         paymentPlan: selectedPaymentPlan,
         installmentsCount: selectedPaymentPlan && selectedPaymentPlan.installments && selectedPaymentPlan.installments > 1 ? installmentsCount : undefined,
@@ -422,26 +425,46 @@ export default function BudgetForm() {
             </div>
           </CardContent>
            <CardFooter className="flex-col items-stretch gap-4 border-t pt-6">
-              {budgetType === 'items' ? (
+              {budgetType === 'items' && (
                 <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
                   <span>Subtotal</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
-              ) : (
-                 <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
-                    <Label htmlFor='group-total' className="flex items-center gap-2 cursor-pointer">
-                        <DollarSign className="h-5 w-5" /> Valor Total do Grupo (R$)
+              )}
+               {budgetType === 'group' && (
+                <>
+                  <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
+                    <Label htmlFor='group-quantity' className="flex items-center gap-2 cursor-pointer">
+                        <PlusCircle className="h-5 w-5" /> Quantidade do Grupo
                     </Label>
                     <Input 
-                        id="group-total" 
-                        type="text" 
-                        value={groupTotalInput} 
-                        onChange={(e) => handleValueInputChange(e, setGroupTotal, setGroupTotalInput)}
-                        onBlur={(e) => handleValueInputBlur(e, setGroupTotal, setGroupTotalInput)}
+                        id="group-quantity" 
+                        type="number" 
+                        value={groupQuantity}
+                        onChange={(e) => setGroupQuantity(Math.max(1, parseInt(e.target.value, 10)))}
                         className="max-w-[150px] text-right" 
-                        placeholder="0,00"
+                        min="1"
                     />
-                </div>
+                  </div>
+                  <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
+                      <Label htmlFor='group-unit-price' className="flex items-center gap-2 cursor-pointer">
+                          <DollarSign className="h-5 w-5" /> Valor Unitário do Grupo (R$)
+                      </Label>
+                      <Input 
+                          id="group-unit-price" 
+                          type="text" 
+                          value={groupUnitPriceInput} 
+                          onChange={(e) => handleValueInputChange(e, setGroupUnitPrice, setGroupUnitPriceInput)}
+                          onBlur={(e) => handleValueInputBlur(e, setGroupUnitPrice, setGroupUnitPriceInput)}
+                          className="max-w-[150px] text-right" 
+                          placeholder="0,00"
+                      />
+                  </div>
+                   <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(subtotal)}</span>
+                  </div>
+                </>
               )}
                <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
                 <Label htmlFor='discount' className="flex items-center gap-2 cursor-pointer">

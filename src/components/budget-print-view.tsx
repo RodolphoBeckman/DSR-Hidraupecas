@@ -73,7 +73,7 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
   }
 
   const subtotal = budget.budgetType === 'group' 
-    ? budget.total + (budget.discount || 0)
+    ? (budget.groupUnitPrice || 0) * (budget.groupQuantity || 1)
     : budget.items.reduce((sum, item) => sum + item.value, 0);
 
   return (
@@ -157,26 +157,34 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
                         <thead>
                             <tr>
                                 <th className="text-left py-1 font-bold uppercase">DESCRIÇÃO</th>
-                                {budget.budgetType === 'items' && <th className="text-center py-1 font-bold uppercase w-20">QTD.</th>}
-                                {budget.budgetType === 'items' && <th className="text-right py-1 font-bold uppercase w-32">VLR. UNIT.</th>}
-                                {budget.budgetType === 'items' && <th className="text-right py-1 font-bold uppercase w-32">VLR. TOTAL</th>}
+                                <th className="text-center py-1 font-bold uppercase w-20">QTD.</th>
+                                <th className="text-right py-1 font-bold uppercase w-32">VLR. UNIT.</th>
+                                <th className="text-right py-1 font-bold uppercase w-32">VLR. TOTAL</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {budget.items.map(item => (
+                            {budget.budgetType === 'items' && budget.items.map(item => (
                                 <tr key={item.id} className="border-b">
                                     <td className="py-1.5 pr-2 whitespace-pre-wrap align-top">{item.description}</td>
-                                     {budget.budgetType === 'items' && <td className="text-center py-1.5 align-top">{item.quantity}</td>}
-                                     {budget.budgetType === 'items' && <td className="text-right py-1.5 align-top">{formatCurrency(item.unitPrice)}</td>}
-                                     {budget.budgetType === 'items' && <td className="text-right py-1.5 align-top">{formatCurrency(item.value)}</td>}
+                                    <td className="text-center py-1.5 align-top">{item.quantity}</td>
+                                    <td className="text-right py-1.5 align-top">{formatCurrency(item.unitPrice)}</td>
+                                    <td className="text-right py-1.5 align-top">{formatCurrency(item.value)}</td>
                                 </tr>
                             ))}
                             {budget.budgetType === 'group' && (
-                                <tr>
-                                    <td className="pt-2 italic text-gray-500" colSpan={1}>
-                                        Valor total referente ao grupo de serviços descritos acima.
-                                    </td>
-                                </tr>
+                                <>
+                                    {budget.items.map(item => (
+                                        <tr key={item.id} className="border-b">
+                                            <td className="py-1.5 pr-2 whitespace-pre-wrap align-top" colSpan={4}>{item.description}</td>
+                                        </tr>
+                                    ))}
+                                    <tr className="border-b">
+                                        <td className="py-1.5 pr-2 whitespace-pre-wrap align-top font-bold italic">Valor total referente ao grupo de serviços descritos acima.</td>
+                                        <td className="text-center py-1.5 align-top font-bold">{budget.groupQuantity}</td>
+                                        <td className="text-right py-1.5 align-top font-bold">{formatCurrency(budget.groupUnitPrice)}</td>
+                                        <td className="text-right py-1.5 align-top font-bold">{formatCurrency(subtotal)}</td>
+                                    </tr>
+                                </>
                             )}
                         </tbody>
                     </table>
