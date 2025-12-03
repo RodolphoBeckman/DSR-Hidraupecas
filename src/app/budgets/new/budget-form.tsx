@@ -435,7 +435,7 @@ export default function BudgetForm() {
                 <>
                   <div className="flex justify-between items-center text-md font-medium text-muted-foreground">
                     <Label htmlFor='group-quantity' className="flex items-center gap-2 cursor-pointer">
-                        <PlusCircle className="h-5 w-5" /> Quantidade do Grupo
+                        <PlusCircle className="h-5 w-5" /> Quantidade de Serviço
                     </Label>
                     <Input 
                         id="group-quantity" 
@@ -558,3 +558,5 @@ export default function BudgetForm() {
     </>
   );
 }
+
+    
