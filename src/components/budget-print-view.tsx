@@ -150,6 +150,13 @@ export const BudgetPrintView = ({ budget }: BudgetPrintViewProps) => {
 
             {/* Corpo do Orçamento */}
             <div className="flex-grow px-8">
+                {/* Título do Orçamento */}
+                {budget.title && (
+                    <section className="mb-4">
+                        <h2 className="text-base font-bold text-center mb-2">{budget.title}</h2>
+                    </section>
+                )}
+
                 {/* Itens do Serviço */}
                 <section className="mb-4">
                     <h3 className="text-sm font-bold mb-2 border-b pb-1">SERVIÇOS</h3>

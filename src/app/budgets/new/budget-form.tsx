@@ -55,6 +55,7 @@ export default function BudgetForm() {
   const [groupUnitPriceInput, setGroupUnitPriceInput] = useState<string>('');
   const [groupQuantity, setGroupQuantity] = useState<number>(1);
   const [observation, setObservation] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
 
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function BudgetForm() {
         setStatus(budgetToEdit.status);
         setBudgetType(budgetToEdit.budgetType || 'items');
         setObservation(budgetToEdit.observation || '');
+        setTitle(budgetToEdit.title || '');
         
         if (budgetToEdit.budgetType === 'group') {
           setGroupUnitPrice(budgetToEdit.groupUnitPrice || 0);
@@ -227,6 +229,7 @@ export default function BudgetForm() {
     }
 
     const budgetData: Omit<Budget, 'id' | 'createdAt'> = {
+        title: title || undefined,
         client,
         salesperson,
         items,
@@ -352,6 +355,18 @@ export default function BudgetForm() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              <div className="space-y-2">
+                  <Label htmlFor='title'>Título do Orçamento (Opcional)</Label>
+                  <Input 
+                    id="title" 
+                    value={title} 
+                    onChange={e => setTitle(e.target.value)} 
+                    placeholder="Ex: Orçamento de Manutenção Preventiva" 
+                  />
+              </div>
+
+              <Separator />
+
               <div className="space-y-2">
                   <Label>Tipo de Precificação</Label>
                   <RadioGroup value={budgetType} onValueChange={(value) => setBudgetType(value as Budget['budgetType'])} className="flex items-center space-x-4">

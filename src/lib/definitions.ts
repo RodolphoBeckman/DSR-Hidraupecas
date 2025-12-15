@@ -42,6 +42,7 @@ export type ServiceItem = {
 
 export type Budget = {
   id: string;
+  title?: string;
   client: Client;
   salesperson: Salesperson;
   items: ServiceItem[];
